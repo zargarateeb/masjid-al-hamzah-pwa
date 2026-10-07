@@ -6,8 +6,7 @@ const IK = 'https://ik.imagekit.io/rgbcpayfx';
 
 // ─── Branding ──────────────────────────────────────────
 export const MASJID_LOGO =
-  'https://ik.imagekit.io/5xwchyocd7/file_000000006ee88208951bafa640456914.png';
-
+  'https://ik.imagekit.io/rgbcpayfx/masjid-logo.png';
 // ─── Home ──────────────────────────────────────────────
 export const HOME_BACKGROUND =
   'https://ik.imagekit.io/rgbcpayfx/masjid-hamzah.jpg?updatedAt=1791299763385';
@@ -35,7 +34,7 @@ export const FALLBACK_IMAGE =
 export const TILE_IMAGES: Record<string, string> = {
   'names-of-allah': `${IK}/Names-of-Allah.jpg`,
   'names-of-prophet': `${IK}/Names-of-Prophet.jpg`,
-  duas: `${IK}/Supplications.jpg`,
+  duas: `${IK}/Supplication.jpg`,
   qibla: `${IK}/Qibla.jpg`,
   'our-masjid': `${IK}/masjid-hamzah.jpg`,
   announcements: `${IK}/Announcements.jpg`,
@@ -90,7 +89,7 @@ export const MASJID_HERO =
 export const PRAYER_HERO = 
  'https://ik.imagekit.io/rgbcpayfx/parents-and-family.jpg';
 export const TASBEEH_BG = 
- 'https://ik.imagekit.io/rgbcpayfx/Supplications.jpg';
+ 'https://ik.imagekit.io/rgbcpayfx/Supplication.jpg';
 export const DONATE_HERO = 
  'https://ik.imagekit.io/rgbcpayfx/donation-masjid.jpg';
 export const ANNOUNCEMENT_HERO = 
