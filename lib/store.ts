@@ -31,12 +31,25 @@ export const useAppStore = create<AppState>((set, get) => ({
   overlayStack: [],
 
   setTab: (t) => {
+    const current = get().activeTab;
+    const stack = get().overlayStack;
+
     // Clear overlays when switching base tabs
-    set({ activeTab: t, overlayStack: [] });
+    if (stack.length > 0) {
+      set({ activeTab: t, overlayStack: [] });
+      return;
+    }
+
+    // Push a history entry when navigating to a non-home tab
+    // So back button can bring us back to home
+    if (t !== 'home' && current !== t && typeof window !== 'undefined') {
+      window.history.pushState({ tab: t }, '');
+    }
+
+    set({ activeTab: t });
   },
 
   pushScreen: (s) => {
-    // Push a history entry so back button triggers popstate
     if (typeof window !== 'undefined') {
       window.history.pushState({ overlay: s }, '');
     }
@@ -47,8 +60,6 @@ export const useAppStore = create<AppState>((set, get) => ({
     const stack = get().overlayStack;
     if (stack.length === 0) return;
 
-    // If a history entry exists for this overlay, go back (fires popstate)
-    // Otherwise just pop locally
     if (typeof window !== 'undefined' && window.history.state?.overlay) {
       window.history.back();
     } else {
