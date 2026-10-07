@@ -1,24 +1,73 @@
 {
   "name": "Masjid Al-Hamzah",
   "short_name": "Al-Hamzah",
-  "description": "Our Faith · Our Community",
+  "description": "Our Faith · Our Community — Prayer times, Quran, Tasbeeh, and community updates for Masjid Al-Hamzah.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#FAF8F2",
-  "theme_color": "#0B2A3E",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#031A18",
+  "theme_color": "#031A18",
   "orientation": "portrait",
+  "categories": ["lifestyle", "education", "utilities"],
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+  {
+    "src": "/screenshots/home-mobile.png",
+    "sizes": "720x1280",
+    "type": "image/png",
+    "form_factor": "narrow",
+    "label": "Home — Next prayer & quick actions"
+  },
+  {
+    "src": "/screenshots/home-desktop.png",
+    "sizes": "1280x720",
+    "type": "image/png",
+    "form_factor": "wide",
+    "label": "Home — Desktop view"
+  }
+],
+  "shortcuts": [
+    {
+      "name": "Prayer Times",
+      "short_name": "Prayer",
+      "description": "View today's prayer times",
+      "url": "/?screen=prayer",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Tasbeeh",
+      "short_name": "Tasbeeh",
+      "description": "Open the digital counter",
+      "url": "/?screen=tasbeeh",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
