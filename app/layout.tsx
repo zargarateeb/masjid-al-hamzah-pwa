@@ -3,7 +3,9 @@ import { Inter, Fraunces, Amiri } from 'next/font/google';
 import './globals.css';
 import Providers from '@/components/Providers';
 import OfflineBanner from '@/components/ui/OfflineBanner';
+import InstallPrompt from '@/components/ui/InstallPrompt';
 import BackButtonHandler from '@/components/ui/BackButtonHandler';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-fraunces', display: 'swap', axes: ['SOFT', 'WONK', 'opsz'] });
@@ -36,19 +38,22 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${fraunces.variable} ${amiri.variable}`}>
+      <head>
+        {/* Load the install capture BEFORE anything else */}
+        <Script src="/install-capture.js" strategy="beforeInteractive" />
+      </head>
       <body className="font-sans">
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                  navigator.serviceWorker.register('/sw.js').catch(() => {});
-                });
-              }
-            `,
-          }}
-        />
+        <Script id="sw-register" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+              });
+            }
+          `}
+        </Script>
         <OfflineBanner />
+        <InstallPrompt />
         <BackButtonHandler />
         <Providers>{children}</Providers>
       </body>
