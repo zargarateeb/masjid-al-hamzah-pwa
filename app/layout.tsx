@@ -3,6 +3,7 @@ import { Inter, Fraunces, Amiri } from 'next/font/google';
 import './globals.css';
 import Providers from '@/components/Providers';
 import OfflineBanner from '@/components/ui/OfflineBanner';
+import BackButtonHandler from '@/components/ui/BackButtonHandler';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-fraunces', display: 'swap', axes: ['SOFT', 'WONK', 'opsz'] });
@@ -22,7 +23,6 @@ export const metadata: Metadata = {
     telephone: false,
   },
 };
-
 
 export const viewport: Viewport = {
   themeColor: '#031A18',
@@ -49,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         <OfflineBanner />
+        <BackButtonHandler />
         <Providers>{children}</Providers>
       </body>
     </html>
