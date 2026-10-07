@@ -46,7 +46,7 @@ export default function HomeScreen() {
   const [times, setTimes] = useState<any>(null);
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [quoteIdx, setQuoteIdx] = useState(0);
-  const [, setTick] = useState(0);
+  const [tick, setTick] = useState(0);
 
   const userId = (session?.user as any)?.id || '';
   const fullName = session?.user?.name || 'Guest';
@@ -94,7 +94,7 @@ export default function HomeScreen() {
     const m = timeToMinutes(f.jamaat);
     if (m !== null) return { key: f.key, name: PRAYER_NAMES[f.key as PrayerKey] || f.key, arabic: PRAYER_ARABIC[f.key as PrayerKey] || '', time: formatTime12(f.jamaat), countdown: fmtCountdown(Math.round((1440 - cur + m) * 60)), azaan: formatTime12(f.azaan) };
     return null;
-  }, [times]);
+  }, [times, tick]);
 
   const prayerList = useMemo(() => {
     if (!times) return [];
@@ -106,7 +106,7 @@ export default function HomeScreen() {
       out.push({ key: p, name: PRAYER_NAMES[p] || p, jamaat: formatTime12(times[p]) });
     }
     return out;
-  }, [times]);
+  }, [times, tick]);
 
   return (
     <div className="relative min-h-dvh pb-32">

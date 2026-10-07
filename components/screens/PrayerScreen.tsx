@@ -212,10 +212,14 @@ export default function PrayerScreen() {
                           )}
                         </div>
                         <div className="mt-0.5 font-arabic text-[12.5px] text-ink-faint">{p.arabic}</div>
-                        <div className="mt-2 flex items-center gap-3 text-[10.5px] text-ink-faint">
-                          <span className="font-display text-[14px] font-semibold text-ink-on-dark">{formatTime12(p.jamaat)}</span>
-                          <span>Azān {formatTime12(p.azaan)}</span>
-                        </div>
+                        <div className="mt-3 flex items-baseline gap-3">
+  <span className="font-display text-[24px] font-semibold text-champagne">
+    {formatTime12(p.jamaat)}
+  </span>
+  <span className="text-[10.5px] text-ink-faint">
+    Azān {formatTime12(p.azaan)}
+  </span>
+</div>
                       </div>
                       <div className="ml-2 flex flex-col items-center gap-0.5">
                         <div className={'rounded-pill px-2 py-0.5 text-[9px] font-bold tracking-wide ' + (all ? 'bg-midnight text-champagne' : 'bg-champagne/15 text-champagne')}>{cnt}/4</div>

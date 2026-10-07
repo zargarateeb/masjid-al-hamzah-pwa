@@ -39,16 +39,15 @@ export default function MoreScreen() {
                 {img && (
                   <div className="pointer-events-none absolute inset-0">
                     <img
-                      src={img}
-                      alt=""
-                      className="absolute right-0 top-0 h-full w-[70%] object-cover"
-                      style={{
-                        maskImage: 'linear-gradient(90deg, transparent 0%, black 65%)',
-                        WebkitMaskImage: 'linear-gradient(90deg, transparent 0%, black 65%)',
-                        opacity: 0.55,
-                        mixBlendMode: 'luminosity',
-                      }}
-                    />
+  src={img}
+  alt=""
+  className="absolute right-0 top-0 h-full w-[70%] object-cover"
+  style={{
+    maskImage: 'linear-gradient(90deg, transparent 0%, black 50%)',
+    WebkitMaskImage: 'linear-gradient(90deg, transparent 0%, black 50%)',
+    opacity: 0.9,
+  }}
+/>
                   </div>
                 )}
                 <div className="relative">
