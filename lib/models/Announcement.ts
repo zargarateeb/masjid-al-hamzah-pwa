@@ -1,6 +1,7 @@
 import mongoose, { Schema, models, model } from 'mongoose';
 
 export interface IAnnouncementComment {
+  _id?: string;
   authorName: string;
   authorEmail?: string;
   message: string;
@@ -22,7 +23,7 @@ const CommentSchema = new Schema<IAnnouncementComment>(
     message: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
   },
-  { _id: false }
+  { _id: true }
 );
 
 const AnnouncementSchema = new Schema<IAnnouncement>(

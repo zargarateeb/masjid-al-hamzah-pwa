@@ -89,3 +89,36 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: e?.message }, { status: 500 });
   }
 }
+
+// Delete a single comment from an announcement
+export async function PUT(req: Request) {
+  try {
+    const body = await req.json();
+    const { id, commentId, email, pin } = body;
+
+    if (!id || !commentId) {
+      return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+    }
+
+    await connectDB();
+    const ann = await Announcement.findById(id);
+    if (!ann) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+    const comments: any[] = Array.isArray(ann.comments) ? ann.comments : [];
+    const target = comments.find((c: any) => c._id?.toString() === commentId);
+    if (!target) return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
+
+    const isAdmin = pin === process.env.ADMIN_PIN;
+    const isOwner = email && target.authorEmail === email;
+
+    if (!isAdmin && !isOwner) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    ann.comments = comments.filter((c: any) => c._id?.toString() !== commentId) as any;
+    await ann.save();
+    return NextResponse.json({ ok: true, item: ann });
+  } catch (e: any) {
+    return NextResponse.json({ error: e?.message }, { status: 500 });
+  }
+}

@@ -52,24 +52,23 @@ export const PRAYER_ARABIC: Record<PrayerKey | 'jummah', string> = {
 };
 
 export const DEBATE_GUIDELINES = [
-  {
-    title: 'Be Respectful',
-    body: 'Always speak with kindness and respect even when you disagree.',
-  },
-  {
-    title: 'Stick to Facts',
-    body: 'Base your arguments on knowledge and authentic sources.',
-  },
-  {
-    title: 'Stay Peaceful',
-    body: 'The goal is understanding, not winning or personal attacks.',
-  },
-  {
-    title: 'Honor Islamic Values',
-    body: 'Keep discussions within the boundaries of Shariah and community harmony.',
-  },
-  {
-    title: 'Make Dua for Guidance',
-    body: 'Before and during any debate, ask Allah for clarity and sincerity.',
-  },
+  { title: 'Be Respectful', body: 'Always speak with kindness and respect even when you disagree.' },
+  { title: 'Stick to Facts', body: 'Base your arguments on knowledge and authentic sources.' },
+  { title: 'Stay Peaceful', body: 'The goal is understanding, not winning or personal attacks.' },
+  { title: 'Honor Islamic Values', body: 'Keep discussions within the boundaries of Shariah and community harmony.' },
+  { title: 'Make Dua for Guidance', body: 'Before and during any debate, ask Allah for clarity and sincerity.' },
 ];
+
+// ─── Super Admin ──────────────────────────────────────
+// Server-side list of super-admin emails
+export function getSuperAdminEmails(): string[] {
+  const raw = process.env.SUPER_ADMIN_EMAILS || '';
+  return raw.split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
+}
+
+// Client-safe check for a given email
+export function isSuperAdminEmail(email: string | null | undefined): boolean {
+  if (!email) return false;
+  const raw = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS || '';
+  return raw.split(',').map((e) => e.trim().toLowerCase()).includes(email.toLowerCase());
+}

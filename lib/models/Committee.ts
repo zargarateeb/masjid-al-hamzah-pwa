@@ -1,6 +1,7 @@
 import mongoose, { Schema, models, model } from 'mongoose';
 
 export interface ICommitteeMember {
+  _id?: string;
   role: string;
   name: string;
   phone?: string;
@@ -24,7 +25,7 @@ const MemberSchema = new Schema<ICommitteeMember>(
     phone: String,
     email: String,
   },
-  { _id: false }
+  { _id: true }
 );
 
 const CommitteeSchema = new Schema<ICommittee>(
@@ -37,8 +38,14 @@ const CommitteeSchema = new Schema<ICommittee>(
     about: { type: String, default: '' },
     updatedAt: { type: Date, default: Date.now },
   },
-  { collection: 'committee' }
+  {
+    collection: 'committee',
+    strict: false,
+  }
 );
 
-export default models.Committee ||
-  model<ICommittee>('Committee', CommitteeSchema);
+if (models.Committee) {
+  delete (models as any).Committee;
+}
+
+export default model<ICommittee>('Committee', CommitteeSchema);

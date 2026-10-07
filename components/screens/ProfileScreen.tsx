@@ -156,7 +156,7 @@ export default function ProfileScreen() {
         <GlassCard variant="dark" padding="p-4" className="text-center">
           <div className="kicker kicker-gold">Developed by Ateeb</div>
           <div className="mt-2 flex items-center justify-center gap-3 text-[12px] text-ink-soft">
-            <a href="https://linkedin.com/in/zargarateeb" target="_blank" rel="noopener noreferrer" className="hover:text-champagne">LinkedIn</a>
+            <a href="https://www.linkedin.com/in/ateeb-zargar-890022386?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener noreferrer" className="hover:text-champagne">LinkedIn</a>
             <span className="text-ink-faint">·</span>
             <a href="https://github.com/zargarateeb" target="_blank" rel="noopener noreferrer" className="hover:text-champagne">GitHub</a>
             <span className="text-ink-faint">·</span>

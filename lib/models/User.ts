@@ -8,6 +8,7 @@ export interface IUser {
   city?: string;
   bio?: string;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   pushSubscription?: object;
   createdAt: Date;
 }
@@ -21,10 +22,18 @@ const UserSchema = new Schema<IUser>(
     city: String,
     bio: String,
     isAdmin: { type: Boolean, default: false },
+    isSuperAdmin: { type: Boolean, default: false },
     pushSubscription: { type: Schema.Types.Mixed, default: null },
     createdAt: { type: Date, default: Date.now },
   },
-  { collection: 'users' }
+  {
+    collection: 'users',
+    strict: false,
+  }
 );
 
-export default models.User || model<IUser>('User', UserSchema);
+if (models.User) {
+  delete (models as any).User;
+}
+
+export default model<IUser>('User', UserSchema);

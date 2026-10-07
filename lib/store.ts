@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 export type Tab = 'home' | 'prayer' | 'tasbeeh' | 'more';
+
 export type OverlayScreen =
   | 'announcements'
   | 'debate'
@@ -13,7 +14,8 @@ export type OverlayScreen =
   | 'names-of-prophet'
   | 'qibla'
   | 'duas'
-  | 'our-masjid';
+  | 'our-masjid'
+  | 'super-admin';
 
 interface AppState {
   activeTab: Tab;
@@ -28,9 +30,7 @@ export const useAppStore = create<AppState>((set) => ({
   activeTab: 'home',
   overlayStack: [],
   setTab: (t) => set({ activeTab: t, overlayStack: [] }),
-  pushScreen: (s) =>
-    set((state) => ({ overlayStack: [...state.overlayStack, s] })),
-  popScreen: () =>
-    set((state) => ({ overlayStack: state.overlayStack.slice(0, -1) })),
+  pushScreen: (s) => set((state) => ({ overlayStack: [...state.overlayStack, s] })),
+  popScreen: () => set((state) => ({ overlayStack: state.overlayStack.slice(0, -1) })),
   clearStack: () => set({ overlayStack: [] }),
 }));
