@@ -14,14 +14,14 @@ export async function GET() {
   try {
     await connectDB();
     let doc = await Committee.findOne({ _key: 'main' }).lean();
-    if (!doc) {
-      doc = await Committee.create({
-        _key: 'main',
-        committee: DEFAULT_COMMITTEE,
-        members: [],
-      });
-      doc = doc.toObject();
-    }
+if (!doc) {
+  const created = await Committee.create({
+    _key: 'main',
+    committee: DEFAULT_COMMITTEE,
+    members: [],
+  });
+  doc = created.toObject();
+}
     return NextResponse.json({ committee: doc });
   } catch (e: any) {
     console.error('❌ Committee GET error:', e?.message || e);

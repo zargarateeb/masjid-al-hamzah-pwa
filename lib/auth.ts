@@ -14,23 +14,24 @@ export const authOptions: NextAuthOptions = {
   pages: { signIn: '/' },
   callbacks: {
     async signIn({ user }) {
-      try {
-        await connectDB();
-        const existing = await User.findOne({ email: user.email });
-        if (!existing) {
-          await User.create({
-            email: user.email,
-            name: user.name || 'Guest',
-            image: user.image,
-            isAdmin: false,
-          });
-        }
-        return true;
-      } catch (e) {
-        console.error('SignIn error:', e);
-        return false;
-      }
-    },
+  try {
+    if (!user.email) return false;
+    await connectDB();
+    const existing = await User.findOne({ email: user.email });
+    if (!existing) {
+      await User.create({
+        email: user.email,
+        name: user.name || 'Guest',
+        image: user.image || undefined,
+        isAdmin: false,
+      });
+    }
+    return true;
+  } catch (e) {
+    console.error('SignIn error:', e);
+    return false;
+  }
+},
     async jwt({ token, user, trigger }) {
       // Always refresh uid from DB so profile changes are picked up
       if (token.email) {
