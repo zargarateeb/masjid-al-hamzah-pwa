@@ -16,7 +16,7 @@ interface Member {
 
 const IMAM = {
   name: 'Hazrat Zafarullah Sahab',
-  nameUr: 'حَضرَت ظَفَرُاللّٰه صاحب',
+  nameUr: 'حضرت ظفر اللہ صاحب',
 };
 
 const COMMITTEE: Member[] = [
@@ -33,12 +33,12 @@ const COMMITTEE: Member[] = [
   {
     role: 'Secretary',
     name: 'To be appointed',
-    nameUr: '---',
+    nameUr: 'تقرری باقی ہے',
   },
   {
     role: 'Treasurer',
     name: 'To be appointed',
-    nameUr: '---',
+    nameUr: 'تقرری باقی ہے',
   },
 ];
 
