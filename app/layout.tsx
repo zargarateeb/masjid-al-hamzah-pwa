@@ -6,6 +6,9 @@ import OfflineBanner from '@/components/ui/OfflineBanner';
 import InstallPrompt from '@/components/ui/InstallPrompt';
 import BackButtonHandler from '@/components/ui/BackButtonHandler';
 import Script from 'next/script';
+export const metadata = {
+  metadataBase: new URL('https://masjid-al-hamzah-pwa.vercel.app'),
+}
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-fraunces', display: 'swap', axes: ['SOFT', 'WONK', 'opsz'] });
