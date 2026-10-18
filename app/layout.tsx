@@ -6,15 +6,13 @@ import OfflineBanner from '@/components/ui/OfflineBanner';
 import InstallPrompt from '@/components/ui/InstallPrompt';
 import BackButtonHandler from '@/components/ui/BackButtonHandler';
 import Script from 'next/script';
-export const metadata = {
-  metadataBase: new URL('https://masjid-al-hamzah-pwa.vercel.app'),
-}
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-fraunces', display: 'swap', axes: ['SOFT', 'WONK', 'opsz'] });
 const amiri = Amiri({ subsets: ['arabic'], weight: ['400', '700'], variable: '--font-amiri', display: 'swap' });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://masjid-al-hamzah-pwa.vercel.app'), // <-- Typo fixed here
   title: 'Masjid Al-Hamzah',
   description: 'Our Faith · Our Community',
   manifest: '/manifest.json',
