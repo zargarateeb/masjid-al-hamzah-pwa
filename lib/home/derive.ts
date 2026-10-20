@@ -1,5 +1,5 @@
 import { PRAYER_OFFSETS, PRAYERS, type PrayerKey } from "@/lib/constants";
-import { addMinutes, formatTime12, timeToMinutes } from "@/lib/utils";
+import { formatTime12, timeToMinutes } from "@/lib/utils";
 import type { JamaatInfo, PrayerRow, PrayerTimeDoc } from "./types";
 
 const LABEL: Record<PrayerKey, string> = {
@@ -20,7 +20,10 @@ export function buildPrayerRows(doc: PrayerTimeDoc): PrayerRow[] {
 }
 
 /** The next prayer strictly after "now", or null if all have passed. */
-export function nextPrayerKey(rows: PrayerRow[], now = new Date()): PrayerKey | null {
+export function nextPrayerKey(
+  rows: PrayerRow[],
+  now = new Date(),
+): PrayerKey | null {
   const nowMin = now.getHours() * 60 + now.getMinutes();
   for (const r of rows) {
     const m = timeToMinutes(r.time24);
@@ -30,13 +33,21 @@ export function nextPrayerKey(rows: PrayerRow[], now = new Date()): PrayerKey | 
 }
 
 /** Highlighted timeline capsule: next prayer, or Isha after Isha (until midnight). */
-export function activeTimelineKey(rows: PrayerRow[], now = new Date()): PrayerKey {
+export function activeTimelineKey(
+  rows: PrayerRow[],
+  now = new Date(),
+): PrayerKey {
   return nextPrayerKey(rows, now) ?? "isha";
 }
 
-function time24ToIsoToday(hhmm: string, base = new Date()): string {
+/**
+ * Convert "HH:mm" to an ISO string for that time on today's date + `daysOffset`.
+ * Uses local time so `new Date(iso).getTime()` compares correctly with `Date.now()`.
+ */
+function time24ToIso(hhmm: string, daysOffset = 0, base = new Date()): string {
   const [h, m] = hhmm.split(":").map(Number);
   const d = new Date(base);
+  d.setDate(d.getDate() + daysOffset);
   d.setHours(h, m, 0, 0);
   return d.toISOString();
 }
@@ -54,9 +65,9 @@ function subtractMinutes(hhmm: string, minutes: number): string {
 
 /**
  * The "NEXT JAMAAT" card.
- * The DB stores the JAMAAT time. Azaan = Jamaat − offset.
+ * DB stores JAMAAT time. Azaan = Jamaat − offset.
  * - Friday with jummah set → Jumu'ah
- * - Otherwise → next prayer
+ * - After Isha passes → tomorrow's Fajr (countdown must be positive)
  */
 export function buildJamaatInfo(
   doc: PrayerTimeDoc,
@@ -70,26 +81,31 @@ export function buildJamaatInfo(
     return {
       title: "Jumu'ah",
       azaanDisplay: formatTime12(azaan),
-      azaanIso: time24ToIsoToday(azaan, now),
+      azaanIso: time24ToIso(azaan, 0, now),
       jamaatDisplay: formatTime12(jamaat),
-      jamaatIso: time24ToIsoToday(jamaat, now),
-      windowStartIso: time24ToIsoToday(azaan, now),
+      jamaatIso: time24ToIso(jamaat, 0, now),
+      windowStartIso: time24ToIso(azaan, 0, now),
     };
   }
 
   const rows = buildPrayerRows(doc);
-  const key = nextPrayerKey(rows, now) ?? "fajr";
-  const jamaat = doc[key];
+  const nextKey = nextPrayerKey(rows, now);
+
+  // If all today's prayers have passed, roll over to tomorrow's Fajr
+  const daysOffset = nextKey === null ? 1 : 0;
+  const prayerKey: PrayerKey = nextKey ?? "fajr";
+
+  const jamaat = doc[prayerKey];
   if (!jamaat) return null;
 
-  const azaan = subtractMinutes(jamaat, PRAYER_OFFSETS[key]);
+  const azaan = subtractMinutes(jamaat, PRAYER_OFFSETS[prayerKey]);
   return {
-    title: LABEL[key],
+    title: LABEL[prayerKey],
     azaanDisplay: formatTime12(azaan),
-    azaanIso: time24ToIsoToday(azaan, now),
+    azaanIso: time24ToIso(azaan, daysOffset, now),
     jamaatDisplay: formatTime12(jamaat),
-    jamaatIso: time24ToIsoToday(jamaat, now),
-    windowStartIso: time24ToIsoToday(azaan, now),
+    jamaatIso: time24ToIso(jamaat, daysOffset, now),
+    windowStartIso: time24ToIso(azaan, daysOffset, now),
   };
 }
 
