@@ -41,11 +41,22 @@ function time24ToIsoToday(hhmm: string, base = new Date()): string {
   return d.toISOString();
 }
 
+/** Subtract offset minutes from a "HH:mm" string, wrapping around midnight. */
+function subtractMinutes(hhmm: string, minutes: number): string {
+  const [h, m] = hhmm.split(":").map(Number);
+  let tot = h * 60 + m - minutes;
+  tot = ((tot % 1440) + 1440) % 1440;
+  const nh = Math.floor(tot / 60);
+  const nm = tot % 60;
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${p(nh)}:${p(nm)}`;
+}
+
 /**
  * The "NEXT JAMAAT" card.
- * - Friday with jummah set → Jumu'ah (azaan=jummah, jamaat=jummah+offset)
- * - Otherwise → next prayer's azaan + offset
- * - Returns null when the source doc has no times at all.
+ * The DB stores the JAMAAT time. Azaan = Jamaat − offset.
+ * - Friday with jummah set → Jumu'ah
+ * - Otherwise → next prayer
  */
 export function buildJamaatInfo(
   doc: PrayerTimeDoc,
@@ -54,23 +65,24 @@ export function buildJamaatInfo(
   const isFriday = now.getDay() === 5;
 
   if (isFriday && doc.jummah) {
-    const jamaat = addMinutes(doc.jummah, PRAYER_OFFSETS.jummah);
+    const jamaat = doc.jummah;
+    const azaan = subtractMinutes(jamaat, PRAYER_OFFSETS.jummah);
     return {
       title: "Jumu'ah",
-      azaanDisplay: formatTime12(doc.jummah),
-      azaanIso: time24ToIsoToday(doc.jummah, now),
+      azaanDisplay: formatTime12(azaan),
+      azaanIso: time24ToIsoToday(azaan, now),
       jamaatDisplay: formatTime12(jamaat),
       jamaatIso: time24ToIsoToday(jamaat, now),
-      windowStartIso: time24ToIsoToday(doc.jummah, now),
+      windowStartIso: time24ToIsoToday(azaan, now),
     };
   }
 
   const rows = buildPrayerRows(doc);
   const key = nextPrayerKey(rows, now) ?? "fajr";
-  const azaan = doc[key];
-  if (!azaan) return null;
+  const jamaat = doc[key];
+  if (!jamaat) return null;
 
-  const jamaat = addMinutes(azaan, PRAYER_OFFSETS[key]);
+  const azaan = subtractMinutes(jamaat, PRAYER_OFFSETS[key]);
   return {
     title: LABEL[key],
     azaanDisplay: formatTime12(azaan),
