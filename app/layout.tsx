@@ -1,61 +1,60 @@
-import type { Metadata, Viewport } from 'next';
-import { Inter, Fraunces, Amiri } from 'next/font/google';
-import './globals.css';
-import Providers from '@/components/Providers';
-import OfflineBanner from '@/components/ui/OfflineBanner';
-import InstallPrompt from '@/components/ui/InstallPrompt';
-import BackButtonHandler from '@/components/ui/BackButtonHandler';
-import Script from 'next/script';
+import type { Metadata, Viewport } from "next";
+import { Playfair_Display, Inter, Noto_Naskh_Arabic } from "next/font/google";
+import "./globals.css";
+import { Providers } from "./providers";
+import { InstallCapture } from "@/components/InstallCapture";
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
-const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-fraunces', display: 'swap', axes: ['SOFT', 'WONK', 'opsz'] });
-const amiri = Amiri({ subsets: ['arabic'], weight: ['400', '700'], variable: '--font-amiri', display: 'swap' });
+const serif = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  variable: "--font-serif",
+  display: "swap",
+});
+
+const sans = Inter({
+  subsets: ["latin"],
+  weight: ["400", "700", "900"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const arabic = Noto_Naskh_Arabic({
+  subsets: ["arabic"],
+  weight: ["400", "700"],
+  variable: "--font-arabic",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://masjid-al-hamzah-pwa.vercel.app'), // <-- Typo fixed here
-  title: 'Masjid Al-Hamzah',
-  description: 'Our Faith · Our Community',
-  manifest: '/manifest.json',
-  applicationName: 'Masjid Al-Hamzah',
+  title: "Masjid Al-Hamzah",
+  description: "Our Faith · Our Community",
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
-    title: 'Masjid Al-Hamzah',
-  },
-  formatDetection: {
-    telephone: false,
+    statusBarStyle: "black-translucent",
+    title: "Al-Hamzah",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#031A18',
-  width: 'device-width',
+  themeColor: "#1c4a3a",
+  width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  viewportFit: 'cover',
+  viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable} ${amiri.variable}`}>
-      <head>
-        {/* Load the install capture BEFORE anything else */}
-        <Script src="/install-capture.js" strategy="beforeInteractive" />
-      </head>
-      <body className="font-sans">
-        <Script id="sw-register" strategy="afterInteractive">
-          {`
-            if ('serviceWorker' in navigator) {
-              window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(() => {});
-              });
-            }
-          `}
-        </Script>
-        <OfflineBanner />
-        <InstallPrompt />
-        <BackButtonHandler />
+    <html
+      lang="en"
+      className={`${serif.variable} ${sans.variable} ${arabic.variable}`}
+    >
+      <body className="font-sans antialiased">
+        <InstallCapture />
         <Providers>{children}</Providers>
       </body>
     </html>

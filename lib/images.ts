@@ -9,8 +9,11 @@ export const MASJID_LOGO =
   'https://ik.imagekit.io/rgbcpayfx/masjid-logo.png';
 // ─── Home ──────────────────────────────────────────────
 export const HOME_BACKGROUND =
-  'https://ik.imagekit.io/rgbcpayfx/masjid-hamzah.jpg?updatedAt=1791299763385';
+  'https://ik.imagekit.io/rgbcpayfx/masjid-bg.jpg';
 export const HERO_HOME = HOME_BACKGROUND;
+
+export const LEAF_BACKGROUND =
+  "https://ik.imagekit.io/rgbcpayfx/Bg-leaves.png";
 
 // ─── Per-prayer (mihrab card + prayer list) ────────────
 export const PRAYER_IMAGES: Record<string, string> = {

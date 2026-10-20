@@ -22,7 +22,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { title, content, isUrgent, pin } = body;
+    const { title, content, isUrgent, imageUrl, pin } = body;
 
     if (pin !== process.env.ADMIN_PIN) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -32,7 +32,13 @@ export async function POST(req: Request) {
     }
 
     await connectDB();
-    const created = await Announcement.create({ title, content, isUrgent: !!isUrgent, comments: [] });
+    const created = await Announcement.create({
+      title,
+      content,
+      isUrgent: !!isUrgent,
+      imageUrl: imageUrl || '',
+      comments: [],
+    });
     return NextResponse.json({ ok: true, item: created });
   } catch (e: any) {
     return NextResponse.json({ error: e?.message }, { status: 500 });

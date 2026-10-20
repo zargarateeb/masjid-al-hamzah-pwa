@@ -12,8 +12,10 @@ export interface IAnnouncement {
   title: string;
   content: string;
   isUrgent: boolean;
+  imageUrl?: string;
   comments: IAnnouncementComment[];
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 const CommentSchema = new Schema<IAnnouncementComment>(
@@ -31,8 +33,10 @@ const AnnouncementSchema = new Schema<IAnnouncement>(
     title: { type: String, required: true },
     content: { type: String, required: true },
     isUrgent: { type: Boolean, default: false },
+    imageUrl: { type: String, default: '' },
     comments: { type: [CommentSchema], default: [] },
     createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
   },
   {
     collection: 'announcements',

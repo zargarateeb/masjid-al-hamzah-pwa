@@ -9,6 +9,7 @@ export interface IPrayerTime {
   isha: string;
   jummah: string;
   updatedAt: Date;
+  updatedBy?: string;
 }
 
 const PrayerTimeSchema = new Schema<IPrayerTime>(
@@ -21,6 +22,7 @@ const PrayerTimeSchema = new Schema<IPrayerTime>(
     isha: { type: String, default: '' },
     jummah: { type: String, default: '' },
     updatedAt: { type: Date, default: Date.now },
+    updatedBy: { type: String, default: '' },
   },
   { collection: 'prayer_times' }
 );

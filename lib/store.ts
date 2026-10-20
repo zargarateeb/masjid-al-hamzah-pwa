@@ -15,7 +15,8 @@ export type OverlayScreen =
   | 'qibla'
   | 'duas'
   | 'our-masjid'
-  | 'super-admin';
+  | 'super-admin'
+  | 'edit-times';
 
 interface AppState {
   activeTab: Tab;
