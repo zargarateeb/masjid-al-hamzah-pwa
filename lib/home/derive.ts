@@ -126,11 +126,22 @@ export function todayISO(): string {
 /** Umm al-Qura Hijri via Intl. Returns "" if the runtime lacks support. */
 export function hijriToday(): string {
   try {
-    return new Intl.DateTimeFormat("en-u-ca-islamic-umalqura", {
+    const fmt = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura", {
       day: "numeric",
       month: "short",
       year: "numeric",
-    }).format(new Date());
+    });
+    const parts = fmt.formatToParts(new Date());
+    
+    // Extract parts manually to avoid browser-specific suffixes like "BC" or "AD"
+    const day = parts.find((p) => p.type === "day")?.value ?? "";
+    const month = parts.find((p) => p.type === "month")?.value ?? "";
+    const yearStr = parts.find((p) => p.type === "year")?.value ?? "";
+    
+    // Strip any non-digit characters from the year (removes "BC", "AD", spaces, etc.)
+    const cleanYear = yearStr.replace(/\D/g, "");
+    
+    return `${day} ${month}, ${cleanYear} AH`;
   } catch {
     return "";
   }
