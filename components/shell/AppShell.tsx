@@ -28,10 +28,10 @@ export function AppShell() {
 
   return (
     <>
-      <LeafBackground />
+      <LeafBackground variant={activeTab === "home" ? "composite" : "plain"} />
       <div className="relative min-h-dvh bg-transparent">
         {activeTab === "home" && <StickyTopBar />}
-        <main className="relative mx-auto w-full max-w-[430px] pb-32">
+        <main className="relative mx-auto w-full max-w-[540px] pb-32">
           {activeTab === "home" && <HomeTab />}
           {activeTab === "prayer" && <TimingsTab />}
           {activeTab === "tasbeeh" && <TasbeehTab />}
@@ -44,7 +44,7 @@ export function AppShell() {
               role="dialog"
               aria-label={s}
             >
-              <div className="mx-auto min-h-full max-w-[430px]">
+              <div className="mx-auto min-h-full max-w-[540px]">
                 {s === "announcements" && <AnnouncementsOverlay />}
                 {s === "duas" && <DuasOverlay />}
                 {s === "names-of-allah" && <NamesOfAllahOverlay />}
