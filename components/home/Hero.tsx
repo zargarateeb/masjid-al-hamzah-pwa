@@ -1,6 +1,5 @@
 "use client";
 import type { HeroUser } from "@/lib/home/types";
-import { assets } from "@/lib/design/assets";
 const QUOTE = "\u201CAnd establish prayer and give zakah.\u201D";
 const QUOTE_REF = "Qur\u2019an 2:43";
 
@@ -32,17 +31,6 @@ export function Hero({
         minHeight: 70,
       }}
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed left-1/2 top-0 -z-10 h-[460px] w-screen max-w-[430px] -translate-x-1/2"
-        style={{
-          backgroundImage: `url(${assets.hero})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center top",
-          backgroundRepeat: "no-repeat",
-        }}
-      />
-
       {/* Greeting */}
       <div
         className="mt-[100px]"
