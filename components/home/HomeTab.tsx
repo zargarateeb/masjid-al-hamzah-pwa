@@ -33,7 +33,7 @@ export function HomeTab() {
         location="Buchpora, Srinagar"
       />
 
-      <div className="relative z-10 -mt-0 px-5">
+      <div className="relative z-10 -mt-0 px-2">
         <JamaatCard
           jamaat={loadingOrData ? null : data!.jamaat}
           loading={loadingOrData}
@@ -42,7 +42,7 @@ export function HomeTab() {
 
       {!loadingOrData && (
         <>
-          <div className="px-5">
+          <div className="px-2">
             <PrayerTimeline rows={data!.prayerRows} activeKey={upcoming} />
             <FeatureGrid />
             <Announcements items={data!.announcements} />
