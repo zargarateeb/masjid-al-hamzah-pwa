@@ -23,10 +23,10 @@ export function BottomNav() {
           const active = activeTab === tab;
           return (
             <li key={tab} className="relative">
-              {i > 0 && (
+              {i > 0 && !active && (
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute left-0 top-1/2 h-6 w-px -translate-y-1/2 bg-divider/70"
+                  className="pointer-events-none absolute left-0 top-1/2 h-6 w-px -translate-y-1/2 bg-divider/50"
                 />
               )}
               <button
@@ -35,11 +35,11 @@ export function BottomNav() {
                 aria-current={active ? "page" : undefined}
                 className={`flex w-full flex-col items-center gap-0.5 rounded-2xl px-2 py-2 text-[10px] transition ${
                   active
-                    ? "bg-forest text-white shadow"
-                    : "text-forest/70 hover:text-forest"
+                    ? "bg-forest text-white shadow-md shadow-forest/20"
+                    : "text-ink-muted hover:text-forest"
                 }`}
               >
-                <Icon size={16} strokeWidth={2} />
+                <Icon size={16} strokeWidth={active ? 2.5 : 2} />
                 <span>{label}</span>
               </button>
             </li>
