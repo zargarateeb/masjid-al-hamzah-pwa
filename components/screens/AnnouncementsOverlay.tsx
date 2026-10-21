@@ -117,29 +117,22 @@ export default function AnnouncementsOverlay() {
                 className="overflow-hidden"
                 onClick={() => setOpenId(item._id)}
               >
-                {/* Poster / banner image */}
-                {hasImage && (
-                  <div className="relative h-[160px] w-full overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.imageUrl}
-                      alt=""
-                      className="h-full w-full object-cover"
-                    />
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                        background:
-                          "linear-gradient(180deg, transparent 40%, rgba(251,249,244,0.85) 90%, rgba(251,249,244,1) 100%)",
-                      }}
-                    />
-                    {item.isUrgent && (
-                      <span className="absolute left-3 top-3 rounded-full bg-[#c9a45d] px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-white">
-                        Urgent
-                      </span>
-                    )}
-                  </div>
-                )}
+                {/* Poster / banner image — full, uncropped */}
+{hasImage && (
+  <div className="relative w-full overflow-hidden bg-black/5">
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img
+      src={item.imageUrl}
+      alt=""
+      className="h-auto w-full object-contain"
+    />
+    {item.isUrgent && (
+      <span className="absolute left-3 top-3 rounded-full bg-[#c9a45d] px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-white shadow-md">
+        Urgent
+      </span>
+    )}
+  </div>
+)}
 
                 {!hasImage && item.isUrgent && (
                   <div className="flex justify-end px-4 pt-3">
