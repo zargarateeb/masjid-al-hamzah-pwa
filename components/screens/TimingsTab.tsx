@@ -4,7 +4,6 @@ import { useSession } from "next-auth/react";
 import { useAppStore } from "@/lib/store";
 import { todayISO, timeToMinutes, formatTime12 } from "@/lib/utils";
 import { PRAYER_OFFSETS, PRAYER_NAMES, PRAYER_ARABIC } from "@/lib/constants";
-import { prayerImage } from "@/lib/images";
 import { effectivePrayers, subtractMinutes } from "@/lib/prayer-times/normalize";
 
 const COMPONENTS = ["sunnat", "fard", "jamaat", "dua"] as const;
@@ -65,192 +64,6 @@ function PrayerIcon({ name, size = 20 }: { name: string; size?: number }) {
       {name === "isha" && (
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
       )}
-      {name === "jummah" && (
-        <>
-          <path d="M4 21V11a8 8 0 0 1 16 0v10" />
-          <path d="M4 21h16M12 3v3" />
-        </>
-      )}
-    </svg>
-  );
-}
-
-function ArchHeader() {
-  return (
-    <svg
-      viewBox="0 0 400 180"
-      className="pointer-events-none absolute inset-x-0 top-0 h-[180px] w-full"
-      preserveAspectRatio="xMidYMid meet"
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient id="archLine" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#c9a45d" stopOpacity="0.7" />
-          <stop offset="100%" stopColor="#c9a45d" stopOpacity="0.2" />
-        </linearGradient>
-      </defs>
-      <path
-        d="M 30 180 L 30 80 Q 30 30 200 10 Q 370 30 370 80 L 370 180"
-        fill="none"
-        stroke="url(#archLine)"
-        strokeWidth="1.2"
-      />
-      <path
-        d="M 50 180 L 50 85 Q 50 42 200 25 Q 350 42 350 85 L 350 180"
-        fill="none"
-        stroke="url(#archLine)"
-        strokeWidth="0.8"
-        opacity="0.7"
-      />
-      <path
-        d="M 70 180 L 70 90 Q 70 54 200 40 Q 330 54 330 90 L 330 180"
-        fill="none"
-        stroke="url(#archLine)"
-        strokeWidth="0.6"
-        opacity="0.5"
-      />
-      <circle cx="200" cy="18" r="2.5" fill="#c9a45d" opacity="0.7" />
-      <circle cx="200" cy="10" r="1.5" fill="#c9a45d" opacity="0.5" />
-    </svg>
-  );
-}
-
-function Lantern() {
-  return (
-    <svg
-      width="32"
-      height="52"
-      viewBox="0 0 32 52"
-      className="mx-auto"
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient id="lanternBody" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#e8d4a0" />
-          <stop offset="50%" stopColor="#c9a45d" />
-          <stop offset="100%" stopColor="#8a6b15" />
-        </linearGradient>
-      </defs>
-      <line x1="16" y1="0" x2="16" y2="10" stroke="#8a6b15" strokeWidth="1" />
-      <path d="M 11 10 L 21 10 L 20 14 L 12 14 Z" fill="url(#lanternBody)" />
-      <path
-        d="M 10 14 Q 10 30 16 40 Q 22 30 22 14 Z"
-        fill="url(#lanternBody)"
-        opacity="0.85"
-      />
-      <path
-        d="M 10 14 Q 10 30 16 40 Q 22 30 22 14 Z"
-        fill="none"
-        stroke="#8a6b15"
-        strokeWidth="0.6"
-      />
-      <path d="M 12 40 L 20 40 L 21 44 L 11 44 Z" fill="url(#lanternBody)" />
-      <ellipse cx="16" cy="27" rx="3" ry="6" fill="#fdf3cc" opacity="0.7" />
-    </svg>
-  );
-}
-
-function PrayerJourneyLandscape({
-  sunPos,
-  moonPos,
-  isDaytime,
-}: {
-  sunPos: number;
-  moonPos: number;
-  isDaytime: boolean;
-}) {
-  function arcPoint(t: number) {
-    const t2 = 1 - t;
-    const x = t2 * t2 * 45 + 2 * t2 * t * 200 + t * t * 355;
-    const y = t2 * t2 * 130 + 2 * t2 * t * 30 + t * t * 130;
-    return { x, y };
-  }
-
-  const sunPt = arcPoint(sunPos);
-  const moonPt = arcPoint(moonPos);
-
-  return (
-    <svg
-      viewBox="0 0 400 200"
-      className="pointer-events-none absolute inset-x-0 bottom-0 h-[200px] w-full"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient id="mountainFade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#c9a45d" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="#c9a45d" stopOpacity="0" />
-        </linearGradient>
-        <radialGradient id="sunGlow" cx="50%" cy="50%">
-          <stop offset="0%" stopColor="#e8b077" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="#e8b077" stopOpacity="0" />
-        </radialGradient>
-        <radialGradient id="moonGlow" cx="50%" cy="50%">
-          <stop offset="0%" stopColor="#c9a45d" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#c9a45d" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-
-      <path
-        d="M 0 145 L 60 120 L 90 130 L 140 105 L 190 125 L 240 100 L 290 120 L 340 108 L 400 125 L 400 200 L 0 200 Z"
-        fill="url(#mountainFade)"
-      />
-      <path
-        d="M 0 160 L 50 140 L 110 150 L 160 130 L 220 145 L 280 128 L 340 140 L 400 130 L 400 200 L 0 200 Z"
-        fill="#c9a45d"
-        opacity="0.05"
-      />
-
-      <path
-        d="M 45 130 Q 200 30 355 130"
-        fill="none"
-        stroke="#c9a45d"
-        strokeWidth="1.5"
-        strokeDasharray="3 5"
-        opacity="0.75"
-      />
-
-      {isDaytime && (
-        <>
-          <circle cx={sunPt.x} cy={sunPt.y} r="14" fill="url(#sunGlow)" />
-          <circle cx={sunPt.x} cy={sunPt.y} r="4.5" fill="#e8b077" />
-          {Array.from({ length: 8 }).map((_, i) => {
-            const angle = (i / 8) * Math.PI * 2;
-            const x1 = sunPt.x + Math.cos(angle) * 6.5;
-            const y1 = sunPt.y + Math.sin(angle) * 6.5;
-            const x2 = sunPt.x + Math.cos(angle) * 8.5;
-            const y2 = sunPt.y + Math.sin(angle) * 8.5;
-            return (
-              <line
-                key={i}
-                x1={x1}
-                y1={y1}
-                x2={x2}
-                y2={y2}
-                stroke="#e8b077"
-                strokeWidth="1.2"
-                strokeLinecap="round"
-              />
-            );
-          })}
-        </>
-      )}
-
-      {!isDaytime && (
-        <>
-          <circle cx={moonPt.x} cy={moonPt.y} r="14" fill="url(#moonGlow)" />
-          <circle cx={moonPt.x} cy={moonPt.y} r="4.5" fill="#e8d4a0" />
-          <circle cx={moonPt.x + 1.5} cy={moonPt.y - 1} r="4" fill="#fdf6e3" />
-        </>
-      )}
-
-      <path
-        d="M 140 65 q 3 -3 6 0 q 3 -3 6 0"
-        fill="none"
-        stroke="#8a6b15"
-        strokeWidth="0.8"
-        opacity="0.35"
-      />
     </svg>
   );
 }
@@ -263,15 +76,9 @@ export function TimingsTab() {
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [expanded, setExpanded] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [now, setNow] = useState(() => new Date());
 
   const userId = (session?.user as { id?: string } | undefined)?.id || "";
   const isToday = selectedDate === todayISO();
-
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 30_000);
-    return () => clearInterval(id);
-  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -295,6 +102,7 @@ export function TimingsTab() {
   }, [userId, selectedDate]);
 
   function shiftDate(days: number) {
+    if (days > 0 && isToday) return; // Prevent future
     const d = new Date(selectedDate + "T12:00:00");
     d.setDate(d.getDate() + days);
     setSelectedDate(
@@ -302,7 +110,6 @@ export function TimingsTab() {
     );
   }
 
-  // Use the normalized prayer rules
   const list = useMemo(() => {
     if (!times) return [];
     const fri = new Date(selectedDate + "T12:00:00").getDay() === 5;
@@ -311,80 +118,41 @@ export function TimingsTab() {
 
   const nextKey = useMemo(() => {
     if (!isToday || !list.length) return null;
-    const cur = now.getHours() * 60 + now.getMinutes();
+    const cur = new Date().getHours() * 60 + new Date().getMinutes();
     for (const p of list) {
       const m = timeToMinutes(p.jamaat);
       if (m !== null && m > cur) return p.key;
     }
     return list[0].key;
-  }, [list, isToday, now]);
-
-  const sunPos = useMemo(() => {
-    if (!list.length) return 0;
-    const cur = now.getHours() * 60 + now.getMinutes();
-    const fajr = timeToMinutes(times?.fajr || "") ?? 360;
-    const maghrib = timeToMinutes(times?.maghrib || "") ?? 1080;
-    if (cur < fajr) return 0;
-    if (cur > maghrib) return 1;
-    return Math.max(0, Math.min(1, (cur - fajr) / (maghrib - fajr)));
-  }, [now, times, list]);
-
-  const moonPos = useMemo(() => {
-    const cur = now.getHours() * 60 + now.getMinutes();
-    const isha = timeToMinutes(times?.isha || "") ?? 1200;
-    const fajr = timeToMinutes(times?.fajr || "") ?? 360;
-    const ishaToMidnight = 1440 - isha;
-    const totalNight = ishaToMidnight + fajr;
-    if (cur >= isha) return Math.min(1, (cur - isha) / totalNight);
-    if (cur < fajr) return Math.min(1, (ishaToMidnight + cur) / totalNight);
-    return 0;
-  }, [now, times]);
-
-  const isDaytime = useMemo(() => {
-    const cur = now.getHours() * 60 + now.getMinutes();
-    const fajr = timeToMinutes(times?.fajr || "") ?? 360;
-    const maghrib = timeToMinutes(times?.maghrib || "") ?? 1080;
-    return cur >= fajr && cur < maghrib;
-  }, [now, times]);
+  }, [list, isToday]);
 
   const hijri = useMemo(() => {
     try {
       const fmt = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
+        day: "numeric", month: "short", year: "numeric",
       });
       const parts = fmt.formatToParts(new Date(selectedDate + "T12:00:00"));
       const day = parts.find((p) => p.type === "day")?.value ?? "";
       const month = parts.find((p) => p.type === "month")?.value ?? "";
       const year = parts.find((p) => p.type === "year")?.value ?? "";
       return `${day} ${month}, ${year.replace(/\D/g, "")} AH`;
-    } catch {
-      return "";
-    }
+    } catch { return ""; }
   }, [selectedDate]);
 
   const gregorian = useMemo(() => {
     return new Date(selectedDate + "T12:00:00").toLocaleDateString("en-GB", {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-      year: "numeric",
+      weekday: "short", day: "numeric", month: "short", year: "numeric",
     });
   }, [selectedDate]);
 
   async function toggle(pKey: string, c: Component) {
-    if (!userId) {
-      pushScreen("settings");
-      return;
-    }
+    if (!userId) { pushScreen("settings"); return; }
     const key = `${pKey}_${c}`;
     const next = { ...checked, [key]: !checked[key] };
     setChecked(next);
     try {
       const r = await fetch("/api/tracking", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, date: selectedDate, checked: next }),
       });
       const d = await r.json();
@@ -392,52 +160,34 @@ export function TimingsTab() {
     } catch {}
   }
 
+  const fardsDone = ["fajr", "zuhr", "asr", "maghrib", "isha"].filter(
+    (p) => checked[`${p}_fard`]
+  ).length;
+
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-canvas pb-32">
-      <ArchHeader />
-
-      <div className="relative px-4 pt-3">
-        <Lantern />
-
-        <div className="mt-1 text-center">
-          <h1 className="font-serif text-[34px] font-bold leading-tight text-forest">
-            Prayer Timings
-          </h1>
-          <p className="mt-1 text-[10.5px] font-semibold uppercase tracking-[0.24em] text-ink-muted">
-            Buchpora, Srinagar
-          </p>
-          <div className="mt-3 flex items-center justify-center gap-2">
-            <span className="h-px w-10 bg-[#c9a45d]/50" />
-            <svg width="24" height="8" viewBox="0 0 24 8">
-              <path d="M 2 4 Q 6 0 12 4 Q 18 8 22 4" fill="none" stroke="#c9a45d" strokeWidth="1" />
-            </svg>
-            <span className="h-px w-10 bg-[#c9a45d]/50" />
-          </div>
-        </div>
+    <div className="relative min-h-dvh pb-32">
+      <div className="relative px-4 pt-6">
+        <h1 className="font-serif text-[30px] font-bold leading-tight text-forest text-center">
+          Prayer Timings
+        </h1>
+        <p className="mt-1 text-[10.5px] font-semibold uppercase tracking-[0.24em] text-ink-muted text-center">
+          Buchpora, Srinagar
+        </p>
 
         {/* Date selector */}
         <div className="mx-4 mt-5 flex items-center justify-between gap-2 rounded-full bg-white/70 py-2.5 pl-3 pr-2 ring-1 ring-white/80 shadow-[0_4px_16px_-8px_rgba(28,52,42,0.25)]">
-          <button type="button" onClick={() => shiftDate(-1)} aria-label="Previous day" className="grid h-8 w-8 place-items-center rounded-full text-forest transition active:scale-95">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
+          <button type="button" onClick={() => shiftDate(-1)} className="grid h-8 w-8 place-items-center rounded-full text-forest transition active:scale-95">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
           </button>
-
           <div className="flex flex-1 items-center justify-center gap-2">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1c4a3a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="5" width="18" height="16" rx="2" />
-              <path d="M3 9h18M8 3v4M16 3v4" />
-            </svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1c4a3a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 9h18M8 3v4M16 3v4" /></svg>
             <div className="text-center">
               <p className="font-serif text-[13px] font-bold text-ink">{gregorian}</p>
               {hijri && <p className="text-[10.5px] text-ink-muted">{hijri}</p>}
             </div>
           </div>
-
-          <button type="button" onClick={() => shiftDate(1)} aria-label="Next day" className="grid h-8 w-8 place-items-center rounded-full text-forest transition active:scale-95">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
+          <button type="button" onClick={() => shiftDate(1)} disabled={isToday} className={`grid h-8 w-8 place-items-center rounded-full transition ${isToday ? "text-ink-muted/30" : "text-forest active:scale-95"}`}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
           </button>
         </div>
 
@@ -449,114 +199,56 @@ export function TimingsTab() {
           </div>
         ) : (
           <>
-            {/* Prayer journey */}
-            <div className="relative mt-4 h-[210px] px-2">
-              <PrayerJourneyLandscape sunPos={sunPos} moonPos={moonPos} isDaytime={isDaytime} />
-
-              <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-1">
-                {list.map((p) => {
-                  const isActive = p.key === nextKey;
-                  return (
-                    <div key={p.key} className="flex flex-1 flex-col items-center">
-                      <div
-                        className={`grid place-items-center transition-all duration-300 ${
-                          isActive
-                            ? "h-[64px] w-[64px] rounded-[16px] bg-forest text-white shadow-[0_12px_24px_-8px_rgba(28,74,58,0.55)]"
-                            : "h-[40px] w-[40px] rounded-full bg-white/70 text-forest ring-1 ring-white/80"
-                        }`}
-                      >
-                        <PrayerIcon name={p.key} size={isActive ? 28 : 20} />
-                        {isActive && (
-                          <span className="mt-0.5 h-1 w-1 rounded-full bg-[#dec680]" />
-                        )}
-                      </div>
-                      <p
-                        className={`mt-2 text-[11px] font-serif font-semibold ${
-                          isActive ? "text-forest" : "text-ink-muted"
-                        }`}
-                      >
-                        {p.name}
-                      </p>
-                      <p
-                        className={`text-[10px] tabular-nums ${
-                          isActive ? "font-bold text-forest" : "text-ink-muted"
-                        }`}
-                      >
-                        {formatTime12(p.jamaat)}
-                      </p>
-                    </div>
-                  );
-                })}
+            {/* Fard Progress Card */}
+            <div className="mx-4 mt-6 rounded-[22px] bg-white/70 p-4 ring-1 ring-white/80 shadow-[0_3px_12px_-6px_rgba(28,52,42,0.18)] flex items-center gap-4">
+              <div className="relative h-14 w-14 shrink-0">
+                <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
+                  <circle cx="18" cy="18" r="16" fill="none" className="stroke-divider/40" strokeWidth="3" />
+                  <circle cx="18" cy="18" r="16" fill="none" className="stroke-[#c9a45d]" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 16}`} strokeDashoffset={`${2 * Math.PI * 16 * (1 - fardsDone / 5)}`} style={{ transition: "stroke-dashoffset 500ms ease-out" }} />
+                </svg>
+                <div className="absolute inset-0 grid place-items-center">
+                  <span className="font-serif text-[14px] font-bold text-ink">{fardsDone}<span className="text-[9px] text-ink-muted">/5</span></span>
+                </div>
+              </div>
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ink-muted">Today's Progress</p>
+                <p className="font-serif text-[14px] font-bold text-forest mt-0.5">{fardsDone === 5 ? "All fards complete ✓" : `${5 - fardsDone} fards remaining`}</p>
               </div>
             </div>
 
             {/* Today's Prayer Timings */}
             <div className="mx-4 mt-6">
-              <div className="flex items-end justify-between">
-                <h3 className="font-serif text-[22px] font-bold text-forest">
-                  Today&apos;s Prayer Timings
-                </h3>
+              <div className="flex items-end justify-between mb-3">
+                <h3 className="font-serif text-[22px] font-bold text-forest">Today's Prayer Timings</h3>
                 <div className="text-right">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-muted">
-                    {gregorian}
-                  </p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-muted">{gregorian}</p>
                   {hijri && <p className="text-[9.5px] text-ink-muted">{hijri}</p>}
                 </div>
               </div>
 
-              <div className="mt-3 space-y-2.5">
+              <div className="space-y-2.5">
                 {list.map((p) => {
                   const isActive = p.key === nextKey;
                   const isExpanded = expanded === p.key;
-                  const cnt = COMPONENTS.filter((c) => checked[`${p.key}_${c}`]).length;
-
+                  
                   return (
-                    <div
-                      key={p.key}
-                      className={`overflow-hidden rounded-[22px] transition ${
-                        isActive ? "bg-[#e6ebdf]" : "bg-white/75 ring-1 ring-white/80"
-                      } shadow-[0_3px_12px_-6px_rgba(28,52,42,0.18)]`}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => setExpanded(isExpanded ? null : p.key)}
-                        className="flex w-full items-center gap-3 p-4 text-left"
-                      >
+                    <div key={p.key} className={`overflow-hidden rounded-[22px] transition ${isActive ? "bg-[#e6ebdf]" : "bg-white/75 ring-1 ring-white/80"} shadow-[0_3px_12px_-6px_rgba(28,52,42,0.18)]`}>
+                      <button type="button" onClick={() => setExpanded(isExpanded ? null : p.key)} className="flex w-full items-center gap-3 p-4 text-left">
                         {isActive && <span className="h-14 w-1 rounded-full bg-forest" />}
-
-                        <div
-                          className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ${
-                            isActive ? "bg-forest text-white" : "bg-[#e6ebdf] text-forest"
-                          }`}
-                        >
+                        <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ${isActive ? "bg-forest text-white" : "bg-[#e6ebdf] text-forest"}`}>
                           <PrayerIcon name={p.key} size={22} />
                         </div>
-
                         <div className="min-w-0 flex-1">
-                          <p className={`font-serif text-[17px] font-bold ${isActive ? "text-forest" : "text-ink"}`}>
-                            {p.name}
-                          </p>
-                          <p dir="rtl" className="text-[13px] text-ink-muted">
-                            {p.arabic}
-                          </p>
+                          <p className={`font-serif text-[17px] font-bold ${isActive ? "text-forest" : "text-ink"}`}>{p.name}</p>
+                          <p dir="rtl" className="text-[13px] text-ink-muted">{p.arabic}</p>
                         </div>
-
                         <div className="shrink-0 text-right">
-                          <p className="text-[9px] uppercase tracking-[0.12em] text-ink-muted">
-                            {p.priorLabel}
-                          </p>
-                          <p className={`text-[12px] tabular-nums ${isActive ? "text-forest/70" : "text-ink-muted"}`}>
-                            {formatTime12(p.prior)}
-                          </p>
+                          <p className="text-[9px] uppercase tracking-[0.12em] text-ink-muted">{p.priorLabel}</p>
+                          <p className={`text-[12px] tabular-nums ${isActive ? "text-forest/70" : "text-ink-muted"}`}>{formatTime12(p.prior)}</p>
                         </div>
-
                         <div className={`shrink-0 rounded-xl px-3 py-1.5 text-right ${isActive ? "bg-forest/10" : "bg-[#c9a45d]/10"}`}>
-                          <p className={`text-[9px] uppercase tracking-[0.12em] ${isActive ? "text-forest/70" : "text-[#8a6b15]"}`}>
-                            Jamaat
-                          </p>
-                          <p className={`text-[15px] font-bold tabular-nums ${isActive ? "text-forest" : "text-[#8a6b15]"}`}>
-                            {formatTime12(p.jamaat)}
-                          </p>
+                          <p className={`text-[9px] uppercase tracking-[0.12em] ${isActive ? "text-forest/70" : "text-[#8a6b15]"}`}>Jamaat</p>
+                          <p className={`text-[15px] font-bold tabular-nums ${isActive ? "text-forest" : "text-[#8a6b15]"}`}>{formatTime12(p.jamaat)}</p>
                         </div>
                       </button>
 
@@ -566,36 +258,11 @@ export function TimingsTab() {
                             {COMPONENTS.map((c) => {
                               const on = checked[`${p.key}_${c}`] === true;
                               return (
-                                <button
-                                  key={c}
-                                  type="button"
-                                  onClick={() => toggle(p.key, c)}
-                                  className="flex flex-1 flex-col items-center gap-1"
-                                >
-                                  <div
-                                    className={`grid h-12 w-12 place-items-center rounded-full transition ${
-                                      on ? "" : "border border-[#c9a45d]/40"
-                                    }`}
-                                    style={
-                                      on
-                                        ? {
-                                            background: "linear-gradient(160deg, #e5b437 0%, #c9a227 55%, #8a6b15 100%)",
-                                            boxShadow: "0 4px 10px -2px rgba(201,162,39,0.5)",
-                                          }
-                                        : { background: "rgba(255,255,255,0.7)" }
-                                    }
-                                  >
-                                    {on ? (
-                                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="20 6 9 17 4 12" />
-                                      </svg>
-                                    ) : (
-                                      <span className="text-[10px] font-bold text-[#8a6b15]">+{POINTS[c]}</span>
-                                    )}
+                                <button key={c} type="button" onClick={() => toggle(p.key, c)} className="flex flex-1 flex-col items-center gap-1">
+                                  <div className={`grid h-12 w-12 place-items-center rounded-full transition ${on ? "" : "border border-[#c9a45d]/40"}`} style={on ? { background: "linear-gradient(160deg, #e5b437 0%, #c9a227 55%, #8a6b15 100%)", boxShadow: "0 4px 10px -2px rgba(201,162,39,0.5)" } : { background: "rgba(255,255,255,0.7)" }}>
+                                    {on ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg> : <span className="text-[10px] font-bold text-[#8a6b15]">+{POINTS[c]}</span>}
                                   </div>
-                                  <span className={`text-[9px] font-bold uppercase tracking-[0.12em] ${on ? "text-[#8a6b15]" : "text-ink-muted"}`}>
-                                    {c}
-                                  </span>
+                                  <span className={`text-[9px] font-bold uppercase tracking-[0.12em] ${on ? "text-[#8a6b15]" : "text-ink-muted"}`}>{c}</span>
                                 </button>
                               );
                             })}
@@ -612,20 +279,12 @@ export function TimingsTab() {
             <div className="mx-4 mt-6 mb-2 rounded-[22px] bg-white/70 px-5 py-4 ring-1 ring-white/80 shadow-[0_8px_20px_-10px_rgba(28,52,42,0.25)]">
               <div className="flex items-start gap-3">
                 <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#e6ebdf] text-forest">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M2 5.5c3.2-1 6.2-.8 9.5 1.2 3.3-2 6.3-2.2 9.5-1.2v13.5c-3.2-1-6.2-.8-9.5 1.2-3.3-2-6.3-2.2-9.5-1.2zM12 6.7v13" />
-                  </svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 5.5c3.2-1 6.2-.8 9.5 1.2 3.3-2 6.3-2.2 9.5-1.2v13.5c-3.2-1-6.2-.8-9.5 1.2-3.3-2-6.3-2.2-9.5-1.2zM12 6.7v13" /></svg>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p dir="rtl" className="text-right font-arabic text-[18px] leading-[1.9] text-forest">
-                    حَافِظُوا عَلَى الصَّلَوَاتِ وَالصَّلَاةِ الْوُسْطَى
-                  </p>
-                  <p className="mt-2 text-[12.5px] italic leading-relaxed text-[#3a4741]">
-                    &ldquo;Maintain the prayers and the middle prayer.&rdquo;
-                  </p>
-                  <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8a6b15]">
-                    — Surah Al-Baqarah (2:238)
-                  </p>
+                  <p dir="rtl" className="text-right font-arabic text-[18px] leading-[1.9] text-forest">حَافِظُوا عَلَى الصَّلَوَاتِ وَالصَّلَاةِ الْوُسْطَى</p>
+                  <p className="mt-2 text-[12.5px] italic leading-relaxed text-[#3a4741]">&ldquo;Maintain the prayers and the middle prayer.&rdquo;</p>
+                  <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8a6b15]">— Surah Al-Baqarah (2:238)</p>
                 </div>
               </div>
             </div>
