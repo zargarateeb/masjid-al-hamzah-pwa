@@ -9,7 +9,7 @@ export const MASJID_LOGO =
   'https://ik.imagekit.io/rgbcpayfx/masjid-logo.png';
 // ─── Home ──────────────────────────────────────────────
 export const HOME_BACKGROUND =
-  'https://ik.imagekit.io/rgbcpayfx/masjid-bg.jpg';
+  'https://ik.imagekit.io/rgbcpayfx/file_000000001ae08208a08b062577b6d207.png';
 export const HERO_HOME = HOME_BACKGROUND;
 
 export const LEAF_BACKGROUND =
