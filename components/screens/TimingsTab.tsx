@@ -4,25 +4,15 @@ import { useSession } from "next-auth/react";
 import { useAppStore } from "@/lib/store";
 import { todayISO, timeToMinutes, formatTime12 } from "@/lib/utils";
 import { PRAYER_OFFSETS, PRAYER_NAMES, PRAYER_ARABIC } from "@/lib/constants";
+import { prayerImage } from "@/lib/images";
+import { effectivePrayers, subtractMinutes } from "@/lib/prayer-times/normalize";
 
 const COMPONENTS = ["sunnat", "fard", "jamaat", "dua"] as const;
 type Component = (typeof COMPONENTS)[number];
-const POINTS: Record<Component, number> = {
-  sunnat: 2,
-  fard: 5,
-  jamaat: 3,
-  dua: 1,
-};
+const POINTS: Record<Component, number> = { sunnat: 2, fard: 5, jamaat: 3, dua: 1 };
 
 function pad(n: number) {
   return String(n).padStart(2, "0");
-}
-function subtract(t: string, min: number) {
-  if (!t || !t.includes(":")) return t;
-  const [h, m] = t.split(":").map(Number);
-  let tot = h * 60 + m - min;
-  tot = ((tot % 1440) + 1440) % 1440;
-  return `${pad(Math.floor(tot / 60))}:${pad(tot % 60)}`;
 }
 
 function PrayerIcon({ name, size = 20 }: { name: string; size?: number }) {
@@ -33,7 +23,7 @@ function PrayerIcon({ name, size = 20 }: { name: string; size?: number }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.8"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
@@ -41,7 +31,7 @@ function PrayerIcon({ name, size = 20 }: { name: string; size?: number }) {
       {name === "fajr" && (
         <>
           <path d="M17 18a5 5 0 0 0-10 0" />
-          <path d="M12 9V3" />
+          <path d="M12 9V2" />
           <path d="M4.22 10.22l1.42 1.42" />
           <path d="M1 18h2" />
           <path d="M21 18h2" />
@@ -64,7 +54,7 @@ function PrayerIcon({ name, size = 20 }: { name: string; size?: number }) {
       {name === "maghrib" && (
         <>
           <path d="M17 18a5 5 0 0 0-10 0" />
-          <path d="M12 9V3" />
+          <path d="M12 9V2" />
           <path d="M4.22 10.22l1.42 1.42" />
           <path d="M1 18h2" />
           <path d="M21 18h2" />
@@ -160,22 +150,15 @@ function Lantern() {
   );
 }
 
-/* ─────────────────────────────────────────────────────
-   Prayer journey landscape + sun/moon position
-   Sun/moon position is driven by current time relative to
-   the actual prayer times of the day.
-   ───────────────────────────────────────────────────── */
 function PrayerJourneyLandscape({
   sunPos,
   moonPos,
   isDaytime,
 }: {
-  sunPos: number; // 0-1 along the arc (0 = far left/fajr, 1 = far right/isha)
-  moonPos: number; // 0-1
+  sunPos: number;
+  moonPos: number;
   isDaytime: boolean;
 }) {
-  // The arc: quadratic bezier from (45,130) through (200,30) to (355,130)
-  // Compute point on this arc for a given t (0..1)
   function arcPoint(t: number) {
     const t2 = 1 - t;
     const x = t2 * t2 * 45 + 2 * t2 * t * 200 + t * t * 355;
@@ -195,7 +178,7 @@ function PrayerJourneyLandscape({
     >
       <defs>
         <linearGradient id="mountainFade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#c9a45d" stopOpacity="0.12" />
+          <stop offset="0%" stopColor="#c9a45d" stopOpacity="0.15" />
           <stop offset="100%" stopColor="#c9a45d" stopOpacity="0" />
         </linearGradient>
         <radialGradient id="sunGlow" cx="50%" cy="50%">
@@ -203,12 +186,11 @@ function PrayerJourneyLandscape({
           <stop offset="100%" stopColor="#e8b077" stopOpacity="0" />
         </radialGradient>
         <radialGradient id="moonGlow" cx="50%" cy="50%">
-          <stop offset="0%" stopColor="#c9a45d" stopOpacity="0.5" />
+          <stop offset="0%" stopColor="#c9a45d" stopOpacity="0.6" />
           <stop offset="100%" stopColor="#c9a45d" stopOpacity="0" />
         </radialGradient>
       </defs>
 
-      {/* Mountain silhouettes */}
       <path
         d="M 0 145 L 60 120 L 90 130 L 140 105 L 190 125 L 240 100 L 290 120 L 340 108 L 400 125 L 400 200 L 0 200 Z"
         fill="url(#mountainFade)"
@@ -216,30 +198,28 @@ function PrayerJourneyLandscape({
       <path
         d="M 0 160 L 50 140 L 110 150 L 160 130 L 220 145 L 280 128 L 340 140 L 400 130 L 400 200 L 0 200 Z"
         fill="#c9a45d"
-        opacity="0.06"
+        opacity="0.05"
       />
 
-      {/* Golden arc */}
       <path
         d="M 45 130 Q 200 30 355 130"
         fill="none"
         stroke="#c9a45d"
-        strokeWidth="1.2"
+        strokeWidth="1.5"
         strokeDasharray="3 5"
-        opacity="0.65"
+        opacity="0.75"
       />
 
-      {/* Sun — position driven by time */}
       {isDaytime && (
         <>
           <circle cx={sunPt.x} cy={sunPt.y} r="14" fill="url(#sunGlow)" />
-          <circle cx={sunPt.x} cy={sunPt.y} r="5" fill="#e8b077" />
+          <circle cx={sunPt.x} cy={sunPt.y} r="4.5" fill="#e8b077" />
           {Array.from({ length: 8 }).map((_, i) => {
             const angle = (i / 8) * Math.PI * 2;
-            const x1 = sunPt.x + Math.cos(angle) * 7;
-            const y1 = sunPt.y + Math.sin(angle) * 7;
-            const x2 = sunPt.x + Math.cos(angle) * 9;
-            const y2 = sunPt.y + Math.sin(angle) * 9;
+            const x1 = sunPt.x + Math.cos(angle) * 6.5;
+            const y1 = sunPt.y + Math.sin(angle) * 6.5;
+            const x2 = sunPt.x + Math.cos(angle) * 8.5;
+            const y2 = sunPt.y + Math.sin(angle) * 8.5;
             return (
               <line
                 key={i}
@@ -248,34 +228,24 @@ function PrayerJourneyLandscape({
                 x2={x2}
                 y2={y2}
                 stroke="#e8b077"
-                strokeWidth="1"
+                strokeWidth="1.2"
                 strokeLinecap="round"
-                opacity="0.85"
               />
             );
           })}
         </>
       )}
 
-      {/* Moon — position driven by time */}
       {!isDaytime && (
         <>
           <circle cx={moonPt.x} cy={moonPt.y} r="14" fill="url(#moonGlow)" />
-          <circle cx={moonPt.x} cy={moonPt.y} r="5" fill="#e8d4a0" />
-          <circle cx={moonPt.x + 2} cy={moonPt.y - 1} r="4.2" fill="#fdf6e3" />
+          <circle cx={moonPt.x} cy={moonPt.y} r="4.5" fill="#e8d4a0" />
+          <circle cx={moonPt.x + 1.5} cy={moonPt.y - 1} r="4" fill="#fdf6e3" />
         </>
       )}
 
-      {/* Birds */}
       <path
         d="M 140 65 q 3 -3 6 0 q 3 -3 6 0"
-        fill="none"
-        stroke="#8a6b15"
-        strokeWidth="0.8"
-        opacity="0.4"
-      />
-      <path
-        d="M 250 55 q 3 -3 6 0 q 3 -3 6 0"
         fill="none"
         stroke="#8a6b15"
         strokeWidth="0.8"
@@ -299,7 +269,7 @@ export function TimingsTab() {
   const isToday = selectedDate === todayISO();
 
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 30_000); // update every 30s
+    const id = setInterval(() => setNow(new Date()), 30_000);
     return () => clearInterval(id);
   }, []);
 
@@ -332,65 +302,11 @@ export function TimingsTab() {
     );
   }
 
+  // Use the normalized prayer rules
   const list = useMemo(() => {
     if (!times) return [];
     const fri = new Date(selectedDate + "T12:00:00").getDay() === 5;
-    const out: {
-      key: string;
-      name: string;
-      arabic: string;
-      jamaat: string;
-      azaan: string;
-    }[] = [];
-    if (times.fajr)
-      out.push({
-        key: "fajr",
-        name: PRAYER_NAMES.fajr,
-        arabic: PRAYER_ARABIC.fajr,
-        jamaat: times.fajr,
-        azaan: subtract(times.fajr, PRAYER_OFFSETS.fajr),
-      });
-    if (fri && times.jummah)
-      out.push({
-        key: "jummah",
-        name: PRAYER_NAMES.jummah,
-        arabic: PRAYER_ARABIC.jummah,
-        jamaat: times.jummah,
-        azaan: subtract(times.jummah, 15),
-      });
-    else if (times.zuhr)
-      out.push({
-        key: "zuhr",
-        name: PRAYER_NAMES.zuhr,
-        arabic: PRAYER_ARABIC.zuhr,
-        jamaat: times.zuhr,
-        azaan: subtract(times.zuhr, PRAYER_OFFSETS.zuhr),
-      });
-    if (times.asr)
-      out.push({
-        key: "asr",
-        name: PRAYER_NAMES.asr,
-        arabic: PRAYER_ARABIC.asr,
-        jamaat: times.asr,
-        azaan: subtract(times.asr, PRAYER_OFFSETS.asr),
-      });
-    if (times.maghrib)
-      out.push({
-        key: "maghrib",
-        name: PRAYER_NAMES.maghrib,
-        arabic: PRAYER_ARABIC.maghrib,
-        jamaat: times.maghrib,
-        azaan: subtract(times.maghrib, PRAYER_OFFSETS.maghrib),
-      });
-    if (times.isha)
-      out.push({
-        key: "isha",
-        name: PRAYER_NAMES.isha,
-        arabic: PRAYER_ARABIC.isha,
-        jamaat: times.isha,
-        azaan: subtract(times.isha, PRAYER_OFFSETS.isha),
-      });
-    return out;
+    return effectivePrayers(times, fri);
   }, [times, selectedDate]);
 
   const nextKey = useMemo(() => {
@@ -403,38 +319,27 @@ export function TimingsTab() {
     return list[0].key;
   }, [list, isToday, now]);
 
-  /* ── Sun position: interpolate between Fajr and Maghrib ── */
   const sunPos = useMemo(() => {
     if (!list.length) return 0;
     const cur = now.getHours() * 60 + now.getMinutes();
     const fajr = timeToMinutes(times?.fajr || "") ?? 360;
     const maghrib = timeToMinutes(times?.maghrib || "") ?? 1080;
-
     if (cur < fajr) return 0;
     if (cur > maghrib) return 1;
-    // Interpolate between fajr (0) and maghrib (1)
-    const frac = (cur - fajr) / (maghrib - fajr);
-    return Math.max(0, Math.min(1, frac));
+    return Math.max(0, Math.min(1, (cur - fajr) / (maghrib - fajr)));
   }, [now, times, list]);
 
-  /* ── Moon position: night after Isha until Fajr ── */
   const moonPos = useMemo(() => {
     const cur = now.getHours() * 60 + now.getMinutes();
     const isha = timeToMinutes(times?.isha || "") ?? 1200;
     const fajr = timeToMinutes(times?.fajr || "") ?? 360;
     const ishaToMidnight = 1440 - isha;
     const totalNight = ishaToMidnight + fajr;
-
-    if (cur >= isha) {
-      return Math.min(1, (cur - isha) / totalNight);
-    }
-    if (cur < fajr) {
-      return Math.min(1, (ishaToMidnight + cur) / totalNight);
-    }
-    return 0; // day
+    if (cur >= isha) return Math.min(1, (cur - isha) / totalNight);
+    if (cur < fajr) return Math.min(1, (ishaToMidnight + cur) / totalNight);
+    return 0;
   }, [now, times]);
 
-  /* ── Is it daytime? ── */
   const isDaytime = useMemo(() => {
     const cur = now.getHours() * 60 + now.getMinutes();
     const fajr = timeToMinutes(times?.fajr || "") ?? 360;
@@ -444,11 +349,16 @@ export function TimingsTab() {
 
   const hijri = useMemo(() => {
     try {
-      return new Intl.DateTimeFormat("en-u-ca-islamic-umalqura", {
+      const fmt = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura", {
         day: "numeric",
         month: "short",
         year: "numeric",
-      }).format(new Date(selectedDate + "T12:00:00"));
+      });
+      const parts = fmt.formatToParts(new Date(selectedDate + "T12:00:00"));
+      const day = parts.find((p) => p.type === "day")?.value ?? "";
+      const month = parts.find((p) => p.type === "month")?.value ?? "";
+      const year = parts.find((p) => p.type === "year")?.value ?? "";
+      return `${day} ${month}, ${year.replace(/\D/g, "")} AH`;
     } catch {
       return "";
     }
@@ -483,7 +393,7 @@ export function TimingsTab() {
   }
 
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-canvas pb-28">
+    <div className="relative min-h-dvh overflow-hidden bg-canvas pb-32">
       <ArchHeader />
 
       <div className="relative px-4 pt-3">
@@ -499,12 +409,7 @@ export function TimingsTab() {
           <div className="mt-3 flex items-center justify-center gap-2">
             <span className="h-px w-10 bg-[#c9a45d]/50" />
             <svg width="24" height="8" viewBox="0 0 24 8">
-              <path
-                d="M 2 4 Q 6 0 12 4 Q 18 8 22 4"
-                fill="none"
-                stroke="#c9a45d"
-                strokeWidth="1"
-              />
+              <path d="M 2 4 Q 6 0 12 4 Q 18 8 22 4" fill="none" stroke="#c9a45d" strokeWidth="1" />
             </svg>
             <span className="h-px w-10 bg-[#c9a45d]/50" />
           </div>
@@ -512,12 +417,7 @@ export function TimingsTab() {
 
         {/* Date selector */}
         <div className="mx-4 mt-5 flex items-center justify-between gap-2 rounded-full bg-white/70 py-2.5 pl-3 pr-2 ring-1 ring-white/80 shadow-[0_4px_16px_-8px_rgba(28,52,42,0.25)]">
-          <button
-            type="button"
-            onClick={() => shiftDate(-1)}
-            aria-label="Previous day"
-            className="grid h-8 w-8 place-items-center rounded-full text-forest transition active:scale-95"
-          >
+          <button type="button" onClick={() => shiftDate(-1)} aria-label="Previous day" className="grid h-8 w-8 place-items-center rounded-full text-forest transition active:scale-95">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
@@ -529,21 +429,12 @@ export function TimingsTab() {
               <path d="M3 9h18M8 3v4M16 3v4" />
             </svg>
             <div className="text-center">
-              <p className="font-serif text-[13px] font-bold text-ink">
-                {gregorian}
-              </p>
-              {hijri && (
-                <p className="text-[10.5px] text-ink-muted">{hijri} AH</p>
-              )}
+              <p className="font-serif text-[13px] font-bold text-ink">{gregorian}</p>
+              {hijri && <p className="text-[10.5px] text-ink-muted">{hijri}</p>}
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => shiftDate(1)}
-            aria-label="Next day"
-            className="grid h-8 w-8 place-items-center rounded-full text-forest transition active:scale-95"
-          >
+          <button type="button" onClick={() => shiftDate(1)} aria-label="Next day" className="grid h-8 w-8 place-items-center rounded-full text-forest transition active:scale-95">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6" />
             </svg>
@@ -554,19 +445,13 @@ export function TimingsTab() {
           <div className="mx-4 mt-6 h-[200px] animate-pulse rounded-[22px] bg-card/40" />
         ) : list.length === 0 ? (
           <div className="mx-4 mt-6 rounded-[22px] bg-card/70 p-6 text-center ring-1 ring-white/70">
-            <p className="font-serif text-[15px] font-bold text-ink">
-              No schedule for this date
-            </p>
+            <p className="font-serif text-[15px] font-bold text-ink">No schedule for this date</p>
           </div>
         ) : (
           <>
             {/* Prayer journey */}
             <div className="relative mt-4 h-[210px] px-2">
-              <PrayerJourneyLandscape
-                sunPos={sunPos}
-                moonPos={moonPos}
-                isDaytime={isDaytime}
-              />
+              <PrayerJourneyLandscape sunPos={sunPos} moonPos={moonPos} isDaytime={isDaytime} />
 
               <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-1">
                 {list.map((p) => {
@@ -574,13 +459,13 @@ export function TimingsTab() {
                   return (
                     <div key={p.key} className="flex flex-1 flex-col items-center">
                       <div
-                        className={`grid place-items-center transition-all ${
+                        className={`grid place-items-center transition-all duration-300 ${
                           isActive
-                            ? "h-[72px] w-[56px] rounded-[14px] bg-forest text-white shadow-[0_12px_24px_-8px_rgba(28,74,58,0.55)]"
-                            : "h-[38px] w-[38px] rounded-full bg-white/70 text-forest ring-1 ring-white/80"
+                            ? "h-[64px] w-[64px] rounded-[16px] bg-forest text-white shadow-[0_12px_24px_-8px_rgba(28,74,58,0.55)]"
+                            : "h-[40px] w-[40px] rounded-full bg-white/70 text-forest ring-1 ring-white/80"
                         }`}
                       >
-                        <PrayerIcon name={p.key} size={isActive ? 24 : 18} />
+                        <PrayerIcon name={p.key} size={isActive ? 28 : 20} />
                         {isActive && (
                           <span className="mt-0.5 h-1 w-1 rounded-full bg-[#dec680]" />
                         )}
@@ -615,9 +500,7 @@ export function TimingsTab() {
                   <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-muted">
                     {gregorian}
                   </p>
-                  {hijri && (
-                    <p className="text-[9.5px] text-ink-muted">{hijri} AH</p>
-                  )}
+                  {hijri && <p className="text-[9.5px] text-ink-muted">{hijri}</p>}
                 </div>
               </div>
 
@@ -625,80 +508,53 @@ export function TimingsTab() {
                 {list.map((p) => {
                   const isActive = p.key === nextKey;
                   const isExpanded = expanded === p.key;
+                  const cnt = COMPONENTS.filter((c) => checked[`${p.key}_${c}`]).length;
 
                   return (
                     <div
                       key={p.key}
                       className={`overflow-hidden rounded-[22px] transition ${
-                        isActive
-                          ? "bg-[#e6ebdf]"
-                          : "bg-white/75 ring-1 ring-white/80"
+                        isActive ? "bg-[#e6ebdf]" : "bg-white/75 ring-1 ring-white/80"
                       } shadow-[0_3px_12px_-6px_rgba(28,52,42,0.18)]`}
                     >
                       <button
                         type="button"
                         onClick={() => setExpanded(isExpanded ? null : p.key)}
-                        className="flex w-full items-center gap-3 p-5 text-left"
+                        className="flex w-full items-center gap-3 p-4 text-left"
                       >
-                        {isActive && (
-                          <span className="h-16 w-1 rounded-full bg-forest" />
-                        )}
+                        {isActive && <span className="h-14 w-1 rounded-full bg-forest" />}
 
                         <div
-                          className={`grid h-14 w-14 shrink-0 place-items-center rounded-full ${
-                            isActive
-                              ? "bg-forest text-white"
-                              : "bg-[#e6ebdf] text-forest"
+                          className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ${
+                            isActive ? "bg-forest text-white" : "bg-[#e6ebdf] text-forest"
                           }`}
                         >
-                          <PrayerIcon name={p.key} size={26} />
+                          <PrayerIcon name={p.key} size={22} />
                         </div>
 
                         <div className="min-w-0 flex-1">
-                          <p
-                            className={`font-serif text-[20px] font-bold ${
-                              isActive ? "text-forest" : "text-ink"
-                            }`}
-                          >
+                          <p className={`font-serif text-[17px] font-bold ${isActive ? "text-forest" : "text-ink"}`}>
                             {p.name}
                           </p>
-                          <p dir="rtl" className="text-[14px] text-ink-muted">
+                          <p dir="rtl" className="text-[13px] text-ink-muted">
                             {p.arabic}
                           </p>
                         </div>
 
-                        {/* Azaan — smaller, muted */}
                         <div className="shrink-0 text-right">
                           <p className="text-[9px] uppercase tracking-[0.12em] text-ink-muted">
-                            Azaan
+                            {p.priorLabel}
                           </p>
-                          <p
-                            className={`text-[12px] tabular-nums ${
-                              isActive ? "text-forest/70" : "text-ink-muted"
-                            }`}
-                          >
-                            {formatTime12(p.azaan)}
+                          <p className={`text-[12px] tabular-nums ${isActive ? "text-forest/70" : "text-ink-muted"}`}>
+                            {formatTime12(p.prior)}
                           </p>
                         </div>
 
-                        {/* Jamaat — bigger, bolder, highlighted */}
-                        <div
-                          className={`shrink-0 rounded-xl px-3 py-1.5 text-right ${
-                            isActive ? "bg-forest/10" : "bg-[#c9a45d]/10"
-                          }`}
-                        >
-                          <p
-                            className={`text-[9px] uppercase tracking-[0.12em] ${
-                              isActive ? "text-forest/70" : "text-[#8a6b15]"
-                            }`}
-                          >
+                        <div className={`shrink-0 rounded-xl px-3 py-1.5 text-right ${isActive ? "bg-forest/10" : "bg-[#c9a45d]/10"}`}>
+                          <p className={`text-[9px] uppercase tracking-[0.12em] ${isActive ? "text-forest/70" : "text-[#8a6b15]"}`}>
                             Jamaat
                           </p>
-                          <p
-                            className={`text-[17px] font-bold tabular-nums ${
-                              isActive ? "text-forest" : "text-[#8a6b15]"
-                            }`}
-                          >
+                          <p className={`text-[15px] font-bold tabular-nums ${isActive ? "text-forest" : "text-[#8a6b15]"}`}>
                             {formatTime12(p.jamaat)}
                           </p>
                         </div>
@@ -723,10 +579,8 @@ export function TimingsTab() {
                                     style={
                                       on
                                         ? {
-                                            background:
-                                              "linear-gradient(160deg, #e5b437 0%, #c9a227 55%, #8a6b15 100%)",
-                                            boxShadow:
-                                              "0 4px 10px -2px rgba(201,162,39,0.5)",
+                                            background: "linear-gradient(160deg, #e5b437 0%, #c9a227 55%, #8a6b15 100%)",
+                                            boxShadow: "0 4px 10px -2px rgba(201,162,39,0.5)",
                                           }
                                         : { background: "rgba(255,255,255,0.7)" }
                                     }
@@ -736,16 +590,10 @@ export function TimingsTab() {
                                         <polyline points="20 6 9 17 4 12" />
                                       </svg>
                                     ) : (
-                                      <span className="text-[10px] font-bold text-[#8a6b15]">
-                                        +{POINTS[c]}
-                                      </span>
+                                      <span className="text-[10px] font-bold text-[#8a6b15]">+{POINTS[c]}</span>
                                     )}
                                   </div>
-                                  <span
-                                    className={`text-[9px] font-bold uppercase tracking-[0.12em] ${
-                                      on ? "text-[#8a6b15]" : "text-ink-muted"
-                                    }`}
-                                  >
+                                  <span className={`text-[9px] font-bold uppercase tracking-[0.12em] ${on ? "text-[#8a6b15]" : "text-ink-muted"}`}>
                                     {c}
                                   </span>
                                 </button>
@@ -769,10 +617,7 @@ export function TimingsTab() {
                   </svg>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p
-                    dir="rtl"
-                    className="text-right font-arabic text-[18px] leading-[1.9] text-forest"
-                  >
+                  <p dir="rtl" className="text-right font-arabic text-[18px] leading-[1.9] text-forest">
                     حَافِظُوا عَلَى الصَّلَوَاتِ وَالصَّلَاةِ الْوُسْطَى
                   </p>
                   <p className="mt-2 text-[12.5px] italic leading-relaxed text-[#3a4741]">
