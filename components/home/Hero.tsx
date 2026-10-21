@@ -25,7 +25,7 @@ export function Hero({
 
   return (
     <header
-      className="relative isolate px-5 pb-6 text-white"
+      className="relative isolate px-2 pb-6 text-white"
       style={{
         paddingTop: 0,
         minHeight: 70,
