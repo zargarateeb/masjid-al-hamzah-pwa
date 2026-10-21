@@ -1,5 +1,4 @@
 "use client";
-import { assets } from "@/lib/design/assets";
 import type { HeroUser } from "@/lib/home/types";
 
 const QUOTE = "\u201CAnd establish prayer and give zakah.\u201D";
@@ -35,12 +34,12 @@ export function Hero({
     >
       <div
         aria-hidden="true"
-         className="pointer-events-none fixed left-1/2 top-0 -z-10 h-[460px] w-screen max-w-[430px] -translate-x-1/2"
+        className="pointer-events-none fixed left-1/2 top-0 -z-10 h-[460px] w-screen max-w-[430px] -translate-x-1/2"
         style={{
-          backgroundImage: `linear-gradient(180deg, rgba(10,20,15,0.45) 0%, rgba(10,20,15,0.05) 28%, rgba(10,20,15,0.15) 62%, var(--color-canvas) 100%), url(${assets.hero})`,
-          backgroundSize: "cover, cover",
-          backgroundPosition: "center top, center top",
-          backgroundRepeat: "no-repeat, no-repeat",
+          backgroundImage: `url("https://ik.imagekit.io/rgbcpayfx/New%20Project%203%20_1691533_.jpg")`,
+          backgroundSize: "cover",
+          backgroundPosition: "center top",
+          backgroundRepeat: "no-repeat",
         }}
       />
 
