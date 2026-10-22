@@ -295,51 +295,150 @@ export function TimingsTab() {
                   const isActive = p.key === nextKey;
                   const isExpanded = expanded === p.key;
                   const img = prayerImage(p.key === "zuhr" && isActive ? "zuhr" : p.key);
-                  
+
                   return (
-                    <div key={p.key} className={`relative overflow-hidden rounded-[22px] transition-all duration-300 h-[110px] ${isActive ? "ring-2 ring-[#2f6350] shadow-[0_12px_30px_-10px_rgba(28,74,58,0.4)]" : "ring-1 ring-white/80 shadow-[0_4px_14px_-8px_rgba(28,52,42,0.2)]"}`}>
-                      
-                      {/* Photo Background for each card */}
-                      <div className="absolute inset-y-0 right-0 w-[55%]">
-                        <img src={img} alt="" className={`h-full w-full object-cover ${isActive ? "opacity-100" : "opacity-70"}`} />
-                        {/* Fade from cream card into the image */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-[#fbf9f4] via-[#fbf9f4]/80 to-transparent" />
-                        {isActive && <div className="absolute inset-0 bg-[#2f6350]/10 mix-blend-multiply" />}
+                    <div
+                      key={p.key}
+                      className={`relative overflow-hidden rounded-[22px] transition-all duration-300 h-[130px] ${
+                        isActive
+                          ? "ring-2 ring-[#2f6350] shadow-[0_12px_30px_-10px_rgba(28,74,58,0.4)]"
+                          : "ring-1 ring-white/80 shadow-[0_4px_14px_-8px_rgba(28,52,42,0.2)]"
+                      }`}
+                    >
+                      {/* Full-width image with smooth fade */}
+                      <div className="absolute inset-0">
+                        <img
+                          src={img}
+                          alt=""
+                          className={`h-full w-full object-cover ${
+                            isActive ? "opacity-100" : "opacity-90"
+                          }`}
+                        />
+                        <div
+                          className="absolute inset-0"
+                          style={{
+                            background:
+                              "linear-gradient(90deg, #fbf9f4 0%, rgba(251,249,244,0.96) 28%, rgba(251,249,244,0.7) 52%, rgba(251,249,244,0.2) 78%, transparent 100%)",
+                          }}
+                        />
+                        {isActive && (
+                          <div className="absolute inset-0 bg-[#2f6350]/8 mix-blend-multiply" />
+                        )}
                       </div>
 
-                      <button type="button" onClick={() => setExpanded(isExpanded ? null : p.key)} className="relative flex h-full w-full items-center gap-3 p-4 pr-[45%] text-left active:scale-[0.99] transition-transform">
-                        {isActive && <span className="h-16 w-1.5 rounded-full bg-forest shadow-sm" />}
-                        
-                        <div className={`grid h-14 w-14 shrink-0 place-items-center rounded-full transition-all duration-300 ${isActive ? "bg-forest text-white shadow-md" : "bg-[#e6ebdf]/90 text-forest backdrop-blur-sm"}`}>
+                      <button
+                        type="button"
+                        onClick={() => setExpanded(isExpanded ? null : p.key)}
+                        className="relative flex h-full w-full items-center gap-3 p-4 pr-[38%] text-left active:scale-[0.99] transition-transform"
+                      >
+                        {isActive && (
+                          <span className="h-16 w-1.5 rounded-full bg-forest shadow-sm" />
+                        )}
+                        <div
+                          className={`grid h-14 w-14 shrink-0 place-items-center rounded-full transition-all duration-300 ${
+                            isActive
+                              ? "bg-forest text-white shadow-md"
+                              : "bg-[#e6ebdf]/90 text-forest backdrop-blur-sm"
+                          }`}
+                        >
                           <PrayerIcon name={p.key} size={26} />
                         </div>
-                        
                         <div className="min-w-0 flex-1">
-                          <p className={`font-serif text-[18px] font-bold ${isActive ? "text-forest" : "text-ink"}`}>{p.name}</p>
-                          <p dir="rtl" className="text-[14px] text-ink-muted">{p.arabic}</p>
+                          <p
+                            className={`font-serif text-[18px] font-bold ${
+                              isActive ? "text-forest" : "text-ink"
+                            }`}
+                          >
+                            {p.name}
+                          </p>
+                          <p dir="rtl" className="text-[14px] text-ink-muted">
+                            {p.arabic}
+                          </p>
                         </div>
-                        
-                        <div className="shrink-0 text-right">
-                          <p className="text-[9px] uppercase tracking-[0.12em] text-ink-muted">{p.priorLabel}</p>
-                          <p className={`text-[13px] tabular-nums ${isActive ? "text-forest/70" : "text-ink-muted"}`}>{formatTime12(p.prior)}</p>
-                        </div>
-                        
-                        <div className={`shrink-0 rounded-xl px-3 py-1.5 text-right transition ${isActive ? "bg-forest text-white shadow-md" : "bg-[#c9a45d]/15"}`}>
-                          <p className={`text-[9px] uppercase tracking-[0.12em] ${isActive ? "text-white/70" : "text-[#8a6b15]"}`}>Jamaat</p>
-                          <p className={`text-[16px] font-bold tabular-nums ${isActive ? "text-white" : "text-[#8a6b15]"}`}>{formatTime12(p.jamaat)}</p>
+
+                        {/* Stacked time boxes */}
+                        <div className="shrink-0 flex flex-col items-end gap-1.5">
+                          <div className="rounded-xl bg-[#2f6350] px-3 py-1.5 text-right shadow-md">
+                            <p className="text-[9px] uppercase tracking-[0.12em] text-white/70">
+                              Jamaat
+                            </p>
+                            <p className="text-[18px] font-bold tabular-nums leading-tight text-white">
+                              {formatTime12(p.jamaat)}
+                            </p>
+                          </div>
+                          <div className="rounded-lg bg-[#c9a45d]/15 px-2.5 py-1 text-right">
+                            <p className="text-[8px] uppercase tracking-[0.12em] text-[#8a6b15]">
+                              {p.priorLabel}
+                            </p>
+                            <p className="text-[11px] font-semibold tabular-nums text-[#8a6b15]">
+                              {formatTime12(p.prior)}
+                            </p>
+                          </div>
                         </div>
                       </button>
 
-                      <div className={`absolute bottom-0 left-0 right-0 bg-[#fbf9f4]/95 backdrop-blur border-t border-divider/50 px-3 pt-2 pb-3 transition-all duration-300 ease-out ${isExpanded ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
+                      <div
+                        className={`absolute bottom-0 left-0 right-0 bg-[#fbf9f4]/95 backdrop-blur border-t border-divider/50 px-3 pt-2 pb-3 transition-all duration-300 ease-out ${
+                          isExpanded
+                            ? "translate-y-0 opacity-100"
+                            : "translate-y-full opacity-0"
+                        }`}
+                      >
                         <div className="flex gap-2">
                           {COMPONENTS.map((c) => {
                             const on = checked[`${p.key}_${c}`] === true;
                             return (
-                              <button key={c} type="button" onClick={() => toggle(p.key, c)} className="flex flex-1 flex-col items-center gap-1 active:scale-95 transition-transform">
-                                <div className={`grid h-12 w-12 place-items-center rounded-full transition-all duration-300 ${on ? "scale-110" : "border border-[#c9a45d]/40"}`} style={on ? { background: "linear-gradient(160deg, #e5b437 0%, #c9a227 55%, #8a6b15 100%)", boxShadow: "0 4px 10px -2px rgba(201,162,39,0.5)" } : { background: "rgba(255,255,255,0.7)" }}>
-                                  {on ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg> : <span className="text-[10px] font-bold text-[#8a6b15]">+{POINTS[c]}</span>}
+                              <button
+                                key={c}
+                                type="button"
+                                onClick={() => toggle(p.key, c)}
+                                className="flex flex-1 flex-col items-center gap-1 active:scale-95 transition-transform"
+                              >
+                                <div
+                                  className={`grid h-12 w-12 place-items-center rounded-full transition-all duration-300 ${
+                                    on
+                                      ? "scale-110"
+                                      : "border border-[#c9a45d]/40"
+                                  }`}
+                                  style={
+                                    on
+                                      ? {
+                                          background:
+                                            "linear-gradient(160deg, #e5b437 0%, #c9a227 55%, #8a6b15 100%)",
+                                          boxShadow:
+                                            "0 4px 10px -2px rgba(201,162,39,0.5)",
+                                        }
+                                      : { background: "rgba(255,255,255,0.7)" }
+                                  }
+                                >
+                                  {on ? (
+                                    <svg
+                                      width="20"
+                                      height="20"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="#fff"
+                                      strokeWidth="3"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    >
+                                      <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                  ) : (
+                                    <span className="text-[10px] font-bold text-[#8a6b15]">
+                                      +{POINTS[c]}
+                                    </span>
+                                  )}
                                 </div>
-                                <span className={`text-[9px] font-bold uppercase tracking-[0.12em] ${on ? "text-[#8a6b15]" : "text-ink-muted"}`}>{c}</span>
+                                <span
+                                  className={`text-[9px] font-bold uppercase tracking-[0.12em] ${
+                                    on
+                                      ? "text-[#8a6b15]"
+                                      : "text-ink-muted"
+                                  }`}
+                                >
+                                  {c}
+                                </span>
                               </button>
                             );
                           })}
@@ -354,12 +453,20 @@ export function TimingsTab() {
             <div className="mx-4 mt-6 mb-2 rounded-[22px] bg-white/70 px-5 py-4 ring-1 ring-white/80 shadow-[0_8px_20px_-10px_rgba(28,52,42,0.25)]">
               <div className="flex items-start gap-3">
                 <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#e6ebdf] text-forest">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 5.5c3.2-1 6.2-.8 9.5 1.2 3.3-2 6.3-2.2 9.5-1.2v13.5c-3.2-1-6.2-.8-9.5 1.2-3.3-2-6.3-2.2-9.5-1.2zM12 6.7v13" /></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 5.5c3.2-1 6.2-.8 9.5 1.2 3.3-2 6.3-2.2 9.5-1.2v13.5c-3.2-1-6.2-.8-9.5 1.2-3.3-2-6.3-2.2-9.5-1.2zM12 6.7v13" />
+                  </svg>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p dir="rtl" className="text-right font-arabic text-[18px] leading-[1.9] text-forest">حَافِظُوا عَلَى الصَّلَوَاتِ وَالصَّلَاةِ الْوُسْطَى</p>
-                  <p className="mt-2 text-[12.5px] italic leading-relaxed text-[#3a4741]">&ldquo;Maintain the prayers and the middle prayer.&rdquo;</p>
-                  <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8a6b15]">— Surah Al-Baqarah (2:238)</p>
+                  <p dir="rtl" className="text-right font-arabic text-[18px] leading-[1.9] text-forest">
+                    حَافِظُوا عَلَى الصَّلَوَاتِ وَالصَّلَاةِ الْوُسْطَى
+                  </p>
+                  <p className="mt-2 text-[12.5px] italic leading-relaxed text-[#3a4741]">
+                    &ldquo;Maintain the prayers and the middle prayer.&rdquo;
+                  </p>
+                  <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8a6b15]">
+                    — Surah Al-Baqarah (2:238)
+                  </p>
                 </div>
               </div>
             </div>
