@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useAppStore } from "@/lib/store";
 import { todayISO, timeToMinutes, formatTime12 } from "@/lib/utils";
 import { effectivePrayers } from "@/lib/prayer-times/normalize";
+import { prayerImage } from "@/lib/images";
 
 const COMPONENTS = ["sunnat", "fard", "jamaat", "dua"] as const;
 type Component = (typeof COMPONENTS)[number];
@@ -15,8 +16,7 @@ function pad(n: number) {
 
 function PrayerIcon({ name, size = 20 }: { name: string; size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       {name === "fajr" && (<><path d="M17 18a5 5 0 0 0-10 0" /><path d="M12 9V2" /><path d="M4.22 10.22l1.42 1.42" /><path d="M1 18h2" /><path d="M21 18h2" /><path d="M18.36 11.64l1.42-1.42" /><path d="M3 22h18" /></>)}
       {name === "zuhr" && (<><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" /></>)}
       {name === "asr" && (<><circle cx="12" cy="12" r="3.5" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41" /></>)}
@@ -26,7 +26,6 @@ function PrayerIcon({ name, size = 20 }: { name: string; size?: number }) {
   );
 }
 
-/* Animated arc with sun/moon marker */
 function PrayerJourney({ sunPos, moonPos, isDaytime }: { sunPos: number; moonPos: number; isDaytime: boolean }) {
   function arcPoint(t: number) {
     const t2 = 1 - t;
@@ -47,28 +46,18 @@ function PrayerJourney({ sunPos, moonPos, isDaytime }: { sunPos: number; moonPos
         <radialGradient id="sunG"><stop offset="0%" stopColor="#f0a860" stopOpacity="0.9" /><stop offset="100%" stopColor="#f0a860" stopOpacity="0" /></radialGradient>
         <radialGradient id="moonG"><stop offset="0%" stopColor="#e8d4a0" stopOpacity="0.7" /><stop offset="100%" stopColor="#e8d4a0" stopOpacity="0" /></radialGradient>
       </defs>
-      {/* Mountains */}
       <path d="M 0 120 L 50 90 L 100 105 L 140 75 L 200 100 L 250 80 L 300 100 L 350 85 L 400 105 L 400 160 L 0 160 Z" fill="url(#mountGrad)" />
       <path d="M 0 135 L 60 115 L 120 130 L 180 105 L 240 125 L 300 110 L 360 125 L 400 115 L 400 160 L 0 160 Z" fill="#c9a45d" opacity="0.07" />
-
-      {/* Golden arc */}
       <path d="M 30 130 Q 200 20 370 130" fill="none" stroke="#c9a45d" strokeWidth="1.5" strokeDasharray="3 6" opacity="0.7" />
-
-      {/* Sun */}
       {isDaytime && (
         <g style={{ transition: "transform 800ms ease-out" }}>
-          <circle cx={sunPt.x} cy={sunPt.y} r="16" fill="url(#sunG)">
-            <animate attributeName="r" values="14;18;14" dur="2s" repeatCount="indefinite" />
-          </circle>
+          <circle cx={sunPt.x} cy={sunPt.y} r="16" fill="url(#sunG)"><animate attributeName="r" values="14;18;14" dur="2s" repeatCount="indefinite" /></circle>
           <circle cx={sunPt.x} cy={sunPt.y} r="5" fill="#f0a860" />
         </g>
       )}
-      {/* Moon */}
       {!isDaytime && (
         <g style={{ transition: "transform 800ms ease-out" }}>
-          <circle cx={moonPt.x} cy={moonPt.y} r="16" fill="url(#moonG)">
-            <animate attributeName="r" values="14;18;14" dur="3s" repeatCount="indefinite" />
-          </circle>
+          <circle cx={moonPt.x} cy={moonPt.y} r="16" fill="url(#moonG)"><animate attributeName="r" values="14;18;14" dur="3s" repeatCount="indefinite" /></circle>
           <circle cx={moonPt.x} cy={moonPt.y} r="5" fill="#e8d4a0" />
           <circle cx={moonPt.x + 2} cy={moonPt.y - 1.5} r="4.2" fill="#fdf6e3" />
         </g>
@@ -91,7 +80,6 @@ export function TimingsTab() {
   const userId = (session?.user as { id?: string } | undefined)?.id || "";
   const isToday = selectedDate === todayISO();
 
-  // Live clock ticking every second for countdown
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
@@ -100,7 +88,7 @@ export function TimingsTab() {
   useEffect(() => {
     setLoading(true);
     setTimes(null);
-    setFadeKey((k) => k + 1); // trigger fade animation
+    setFadeKey((k) => k + 1);
     fetch(`/api/prayer-times?date=${selectedDate}`, { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => setTimes(d?.time || null))
@@ -218,11 +206,9 @@ export function TimingsTab() {
   return (
     <div className="relative min-h-dvh pb-32">
       <div className="relative px-4 pt-6">
-        {/* Header */}
         <h1 className="font-serif text-[30px] font-bold leading-tight text-forest text-center">Prayer Timings</h1>
         <p className="mt-1 text-[10.5px] font-semibold uppercase tracking-[0.24em] text-ink-muted text-center">Buchpora, Srinagar</p>
 
-        {/* Date selector */}
         <div className="mx-4 mt-5 flex items-center justify-between gap-2 rounded-full bg-white/70 py-2.5 pl-3 pr-2 ring-1 ring-white/80 shadow-[0_4px_16px_-8px_rgba(28,52,42,0.25)]">
           <button type="button" onClick={() => shiftDate(-1)} className="grid h-8 w-8 place-items-center rounded-full text-forest transition hover:bg-forest/5 active:scale-95">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
@@ -247,19 +233,15 @@ export function TimingsTab() {
           </div>
         ) : (
           <div key={fadeKey} style={{ animation: "dateFade 400ms ease-out" }}>
-            {/* Prayer Journey Arc — with animated sun/moon */}
             <div className="relative mt-4 h-[200px]">
               <PrayerJourney sunPos={sunPos} moonPos={moonPos} isDaytime={isDaytime} />
-
               <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-2">
                 {list.map((p) => {
                   const isActive = p.key === nextKey;
                   return (
                     <div key={p.key} className="flex flex-1 flex-col items-center">
                       <div className={`relative grid place-items-center transition-all duration-500 ease-out ${isActive ? "h-[60px] w-[60px] rounded-[16px] bg-forest text-white shadow-[0_12px_24px_-8px_rgba(28,74,58,0.55)] scale-110" : "h-[38px] w-[38px] rounded-full bg-white/70 text-forest ring-1 ring-white/80"}`}>
-                        {isActive && (
-                          <span className="absolute inset-0 rounded-[16px] bg-forest/20 animate-ping" />
-                        )}
+                        {isActive && <span className="absolute inset-0 rounded-[16px] bg-forest/20 animate-ping" />}
                         <PrayerIcon name={p.key} size={isActive ? 26 : 18} />
                       </div>
                       <p className={`mt-2 text-[11px] font-serif font-semibold transition-colors ${isActive ? "text-forest" : "text-ink-muted"}`}>{p.name}</p>
@@ -270,7 +252,6 @@ export function TimingsTab() {
               </div>
             </div>
 
-            {/* Next prayer countdown banner */}
             {isToday && nextKey && countdown && (
               <div className="mx-4 mt-5 rounded-[20px] bg-gradient-to-r from-forest to-[#0a2a1f] p-4 shadow-lg">
                 <div className="flex items-center justify-between">
@@ -289,7 +270,6 @@ export function TimingsTab() {
               </div>
             )}
 
-            {/* Fard Progress */}
             <div className="mx-4 mt-5 rounded-[20px] bg-white/70 p-4 ring-1 ring-white/80 shadow-[0_3px_12px_-6px_rgba(28,52,42,0.18)] flex items-center gap-4">
               <div className="relative h-16 w-16 shrink-0">
                 <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
@@ -306,53 +286,63 @@ export function TimingsTab() {
               </div>
             </div>
 
-            {/* Prayer Rows */}
             <div className="mx-4 mt-6">
               <div className="flex items-end justify-between mb-3">
                 <h3 className="font-serif text-[22px] font-bold text-forest">Today's Prayer Timings</h3>
               </div>
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 {list.map((p) => {
                   const isActive = p.key === nextKey;
                   const isExpanded = expanded === p.key;
+                  const img = prayerImage(p.key === "zuhr" && isActive ? "zuhr" : p.key);
+                  
                   return (
-                    <div key={p.key} className={`overflow-hidden rounded-[22px] transition-all duration-300 ${isActive ? "bg-gradient-to-br from-[#e6ebdf] to-[#d8e2cc] shadow-[0_8px_24px_-8px_rgba(28,74,58,0.3)] ring-1 ring-[#2f6350]/20" : "bg-white/75 ring-1 ring-white/80"} hover:shadow-lg`}>
-                      <button type="button" onClick={() => setExpanded(isExpanded ? null : p.key)} className="flex w-full items-center gap-3 p-4 text-left transition-all active:scale-[0.99]">
-                        {isActive && <span className="h-14 w-1 rounded-full bg-forest" />}
-                        <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-full transition-all duration-300 ${isActive ? "bg-forest text-white shadow-md" : "bg-[#e6ebdf] text-forest"}`}>
-                          <PrayerIcon name={p.key} size={22} />
+                    <div key={p.key} className={`relative overflow-hidden rounded-[22px] transition-all duration-300 h-[110px] ${isActive ? "ring-2 ring-[#2f6350] shadow-[0_12px_30px_-10px_rgba(28,74,58,0.4)]" : "ring-1 ring-white/80 shadow-[0_4px_14px_-8px_rgba(28,52,42,0.2)]"}`}>
+                      
+                      {/* Photo Background for each card */}
+                      <div className="absolute inset-y-0 right-0 w-[55%]">
+                        <img src={img} alt="" className={`h-full w-full object-cover ${isActive ? "opacity-100" : "opacity-70"}`} />
+                        {/* Fade from cream card into the image */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#fbf9f4] via-[#fbf9f4]/80 to-transparent" />
+                        {isActive && <div className="absolute inset-0 bg-[#2f6350]/10 mix-blend-multiply" />}
+                      </div>
+
+                      <button type="button" onClick={() => setExpanded(isExpanded ? null : p.key)} className="relative flex h-full w-full items-center gap-3 p-4 pr-[45%] text-left active:scale-[0.99] transition-transform">
+                        {isActive && <span className="h-16 w-1.5 rounded-full bg-forest shadow-sm" />}
+                        
+                        <div className={`grid h-14 w-14 shrink-0 place-items-center rounded-full transition-all duration-300 ${isActive ? "bg-forest text-white shadow-md" : "bg-[#e6ebdf]/90 text-forest backdrop-blur-sm"}`}>
+                          <PrayerIcon name={p.key} size={26} />
                         </div>
+                        
                         <div className="min-w-0 flex-1">
-                          <p className={`font-serif text-[17px] font-bold ${isActive ? "text-forest" : "text-ink"}`}>{p.name}</p>
-                          <p dir="rtl" className="text-[13px] text-ink-muted">{p.arabic}</p>
+                          <p className={`font-serif text-[18px] font-bold ${isActive ? "text-forest" : "text-ink"}`}>{p.name}</p>
+                          <p dir="rtl" className="text-[14px] text-ink-muted">{p.arabic}</p>
                         </div>
+                        
                         <div className="shrink-0 text-right">
                           <p className="text-[9px] uppercase tracking-[0.12em] text-ink-muted">{p.priorLabel}</p>
-                          <p className={`text-[12px] tabular-nums ${isActive ? "text-forest/70" : "text-ink-muted"}`}>{formatTime12(p.prior)}</p>
+                          <p className={`text-[13px] tabular-nums ${isActive ? "text-forest/70" : "text-ink-muted"}`}>{formatTime12(p.prior)}</p>
                         </div>
-                        <div className={`shrink-0 rounded-xl px-3 py-1.5 text-right transition ${isActive ? "bg-forest text-white shadow-md" : "bg-[#c9a45d]/10"}`}>
+                        
+                        <div className={`shrink-0 rounded-xl px-3 py-1.5 text-right transition ${isActive ? "bg-forest text-white shadow-md" : "bg-[#c9a45d]/15"}`}>
                           <p className={`text-[9px] uppercase tracking-[0.12em] ${isActive ? "text-white/70" : "text-[#8a6b15]"}`}>Jamaat</p>
-                          <p className={`text-[15px] font-bold tabular-nums ${isActive ? "text-white" : "text-[#8a6b15]"}`}>{formatTime12(p.jamaat)}</p>
+                          <p className={`text-[16px] font-bold tabular-nums ${isActive ? "text-white" : "text-[#8a6b15]"}`}>{formatTime12(p.jamaat)}</p>
                         </div>
                       </button>
 
-                      <div className={`grid transition-all duration-300 ease-out ${isExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-                        <div className="overflow-hidden">
-                          <div className="border-t border-divider/50 px-3 pb-3 pt-2">
-                            <div className="flex gap-2">
-                              {COMPONENTS.map((c) => {
-                                const on = checked[`${p.key}_${c}`] === true;
-                                return (
-                                  <button key={c} type="button" onClick={() => toggle(p.key, c)} className="flex flex-1 flex-col items-center gap-1 active:scale-95 transition-transform">
-                                    <div className={`grid h-12 w-12 place-items-center rounded-full transition-all duration-300 ${on ? "scale-110" : "border border-[#c9a45d]/40"}`} style={on ? { background: "linear-gradient(160deg, #e5b437 0%, #c9a227 55%, #8a6b15 100%)", boxShadow: "0 4px 10px -2px rgba(201,162,39,0.5)" } : { background: "rgba(255,255,255,0.7)" }}>
-                                      {on ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg> : <span className="text-[10px] font-bold text-[#8a6b15]">+{POINTS[c]}</span>}
-                                    </div>
-                                    <span className={`text-[9px] font-bold uppercase tracking-[0.12em] ${on ? "text-[#8a6b15]" : "text-ink-muted"}`}>{c}</span>
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
+                      <div className={`absolute bottom-0 left-0 right-0 bg-[#fbf9f4]/95 backdrop-blur border-t border-divider/50 px-3 pt-2 pb-3 transition-all duration-300 ease-out ${isExpanded ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
+                        <div className="flex gap-2">
+                          {COMPONENTS.map((c) => {
+                            const on = checked[`${p.key}_${c}`] === true;
+                            return (
+                              <button key={c} type="button" onClick={() => toggle(p.key, c)} className="flex flex-1 flex-col items-center gap-1 active:scale-95 transition-transform">
+                                <div className={`grid h-12 w-12 place-items-center rounded-full transition-all duration-300 ${on ? "scale-110" : "border border-[#c9a45d]/40"}`} style={on ? { background: "linear-gradient(160deg, #e5b437 0%, #c9a227 55%, #8a6b15 100%)", boxShadow: "0 4px 10px -2px rgba(201,162,39,0.5)" } : { background: "rgba(255,255,255,0.7)" }}>
+                                  {on ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg> : <span className="text-[10px] font-bold text-[#8a6b15]">+{POINTS[c]}</span>}
+                                </div>
+                                <span className={`text-[9px] font-bold uppercase tracking-[0.12em] ${on ? "text-[#8a6b15]" : "text-ink-muted"}`}>{c}</span>
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>
@@ -361,7 +351,6 @@ export function TimingsTab() {
               </div>
             </div>
 
-            {/* Quran verse card */}
             <div className="mx-4 mt-6 mb-2 rounded-[22px] bg-white/70 px-5 py-4 ring-1 ring-white/80 shadow-[0_8px_20px_-10px_rgba(28,52,42,0.25)]">
               <div className="flex items-start gap-3">
                 <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#e6ebdf] text-forest">
