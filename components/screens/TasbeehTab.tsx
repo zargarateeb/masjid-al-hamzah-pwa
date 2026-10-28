@@ -2,8 +2,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { todayISO } from "@/lib/utils";
-import { TasbeehSkeleton } from "@/components/skeletons/TasbeehSkeleton";
 import { AmbientGlow } from "../ui/Theme";
+import { TasbeehSkeleton } from "@/components/skeletons/TasbeehSkeleton";
 
 interface DhikrPreset {
   key: string;
@@ -16,33 +16,25 @@ interface DhikrPreset {
   colorDark: string;
 }
 
-const [booting, setBooting] = useState(true);
-useEffect(() => {
-  // Wait for session + initial counts load
-  const t = setTimeout(() => setBooting(false), 400);
-  return () => clearTimeout(t);
-}, []);
-
 const DHIKR_PRESETS: DhikrPreset[] = [
-  { key: "allahuakbar", label: "Allahu Akbar", arabic: "اللَّهُ أَكْبَر", meaning: "Allah is the Greatest", defaultTarget: 34, color: "#b87333", colorLight: "#e8b077", colorDark: "#7a4a1e" },
-  { key: "salawat", label: "Durood-e-Ibrahimi", arabic: "اللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّد", meaning: "Blessings upon the Prophet ﷺ", defaultTarget: 100, color: "#c9a45d", colorLight: "#e8d4a0", colorDark: "#8a6b15" },
-  { key: "subhanallah", label: "SubhanAllah", arabic: "سُبْحَانَ اللَّهِ", meaning: "Glory be to Allah", defaultTarget: 33, color: "#2f6350", colorLight: "#7bb194", colorDark: "#1a3d30" },
-  { key: "alhamdulillah", label: "Alhamdulillah", arabic: "الْحَمْدُ لِلَّهِ", meaning: "All praise is for Allah", defaultTarget: 33, color: "#1c4a3a", colorLight: "#5e9378", colorDark: "#0f2a20" },
-  { key: "lailaha", label: "La ilaha illallah", arabic: "لَا إِلَٰهَ إِلَّا ٱللَّٰهُ", meaning: "There is no god but Allah", defaultTarget: 100, color: "#4b7a9c", colorLight: "#8fb3cf", colorDark: "#2a4a63" },
-  { key: "astaghfirullah", label: "Astaghfirullah", arabic: "أَسْتَغْفِرُ اللَّهَ", meaning: "I seek Allah's forgiveness", defaultTarget: 100, color: "#7a6b9b", colorLight: "#b6a9d1", colorDark: "#4a4063" },
-  { key: "lahawla", label: "La hawla wa la quwwata", arabic: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ", meaning: "No power except with Allah", defaultTarget: 100, color: "#a8855c", colorLight: "#d3b48d", colorDark: "#6b5433" },
-  { key: "subhanallah-wa-bihamdihi", label: "SubhanAllahi wa bihamdihi", arabic: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ", meaning: "Glory and praise to Allah", defaultTarget: 100, color: "#2f6350", colorLight: "#7bb194", colorDark: "#1a3d30" },
-  { key: "subhanallahil-azeem", label: "SubhanAllahil Azeem", arabic: "سُبْحَانَ اللَّهِ الْعَظِيمِ", meaning: "Glory to Allah, the Magnificent", defaultTarget: 100, color: "#1c4a3a", colorLight: "#5e9378", colorDark: "#0f2a20" },
-  { key: "hasbunallah", label: "HasbunAllah", arabic: "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", meaning: "Allah is sufficient for us", defaultTarget: 100, color: "#4b7a9c", colorLight: "#8fb3cf", colorDark: "#2a4a63" },
-  { key: "rabbana-atina", label: "Rabbana atina", arabic: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً", meaning: "Our Lord, give us good in this world", defaultTarget: 100, color: "#7a6b9b", colorLight: "#b6a9d1", colorDark: "#4a4063" },
-  { key: "ya-hayyu", label: "Ya Hayyu Ya Qayyum", arabic: "يَا حَيُّ يَا قَيُّومُ", meaning: "O Ever-Living, O Sustainer", defaultTarget: 100, color: "#b87333", colorLight: "#e8b077", colorDark: "#7a4a1e" },
+  { key: "allahuakbar", label: "Allahu Akbar", arabic: "\u0627\u0644\u0644\u064E\u0651\u0647\u064F \u0623\u064E\u0643\u0652\u0628\u064E\u0631", meaning: "Allah is the Greatest", defaultTarget: 34, color: "#b87333", colorLight: "#e8b077", colorDark: "#7a4a1e" },
+  { key: "salawat", label: "Durood-e-Ibrahimi", arabic: "\u0627\u0644\u0644\u064E\u0651\u0647\u064F\u0645\u064E\u0651 \u0635\u064E\u0644\u0650\u0651 \u0639\u064E\u0644\u064E\u0649\u0670 \u0645\u064F\u062D\u064E\u0645\u064E\u0651\u062F", meaning: "Blessings upon the Prophet \uFDFA", defaultTarget: 100, color: "#c9a45d", colorLight: "#e8d4a0", colorDark: "#8a6b15" },
+  { key: "subhanallah", label: "SubhanAllah", arabic: "\u0633\u064F\u0628\u0652\u062D\u064E\u0627\u0646\u064E \u0627\u0644\u0644\u064E\u0651\u0647\u0650", meaning: "Glory be to Allah", defaultTarget: 33, color: "#2f6350", colorLight: "#7bb194", colorDark: "#1a3d30" },
+  { key: "alhamdulillah", label: "Alhamdulillah", arabic: "\u0627\u0644\u0652\u062D\u064E\u0645\u0652\u062F\u064F \u0644\u0650\u0644\u064E\u0651\u0647\u0650", meaning: "All praise is for Allah", defaultTarget: 33, color: "#1c4a3a", colorLight: "#5e9378", colorDark: "#0f2a20" },
+  { key: "lailaha", label: "La ilaha illallah", arabic: "\u0644\u064E\u0627 \u0625\u0650\u0644\u064E\u0670\u0647\u064E \u0625\u0650\u0644\u064E\u0651\u0627 \u0671\u0644\u0644\u064E\u0651\u0670\u0647\u064F", meaning: "There is no god but Allah", defaultTarget: 100, color: "#4b7a9c", colorLight: "#8fb3cf", colorDark: "#2a4a63" },
+  { key: "astaghfirullah", label: "Astaghfirullah", arabic: "\u0623\u064E\u0633\u0652\u062A\u064E\u063A\u0652\u0641\u0650\u0631\u064F \u0627\u0644\u0644\u064E\u0651\u0647\u064E", meaning: "I seek Allah's forgiveness", defaultTarget: 100, color: "#7a6b9b", colorLight: "#b6a9d1", colorDark: "#4a4063" },
+  { key: "lahawla", label: "La hawla wa la quwwata", arabic: "\u0644\u064E\u0627 \u062D\u064E\u0648\u0652\u0644\u064E \u0648\u064E\u0644\u064E\u0627 \u0642\u064F\u0648\u064E\u0651\u0629\u064E \u0625\u0650\u0644\u064E\u0651\u0627 \u0628\u0650\u0627\u0644\u0644\u064E\u0651\u0647\u0650", meaning: "No power except with Allah", defaultTarget: 100, color: "#a8855c", colorLight: "#d3b48d", colorDark: "#6b5433" },
+  { key: "subhanallah-wa-bihamdihi", label: "SubhanAllahi wa bihamdihi", arabic: "\u0633\u064F\u0628\u0652\u062D\u064E\u0627\u0646\u064E \u0627\u0644\u0644\u064E\u0651\u0647\u0650 \u0648\u064E\u0628\u0650\u062D\u064E\u0645\u0652\u062F\u0650\u0647\u0650", meaning: "Glory and praise to Allah", defaultTarget: 100, color: "#2f6350", colorLight: "#7bb194", colorDark: "#1a3d30" },
+  { key: "subhanallahil-azeem", label: "SubhanAllahil Azeem", arabic: "\u0633\u064F\u0628\u0652\u062D\u064E\u0627\u0646\u064E \u0627\u0644\u0644\u064E\u0651\u0647\u0650 \u0627\u0644\u0652\u0639\u064E\u0638\u0650\u064A\u0645\u0650", meaning: "Glory to Allah, the Magnificent", defaultTarget: 100, color: "#1c4a3a", colorLight: "#5e9378", colorDark: "#0f2a20" },
+  { key: "hasbunallah", label: "HasbunAllah", arabic: "\u062D\u064E\u0633\u0652\u0628\u064F\u0646\u064E\u0627 \u0627\u0644\u0644\u064E\u0651\u0647\u064F \u0648\u064E\u0646\u0650\u0639\u0652\u0645\u064E \u0627\u0644\u0652\u0648\u064E\u0643\u0650\u064A\u0644\u064F", meaning: "Allah is sufficient for us", defaultTarget: 100, color: "#4b7a9c", colorLight: "#8fb3cf", colorDark: "#2a4a63" },
+  { key: "rabbana-atina", label: "Rabbana atina", arabic: "\u0631\u064E\u0628\u064E\u0651\u0646\u064E\u0627 \u0622\u062A\u0650\u0646\u064E\u0627 \u0641\u0650\u064A \u0627\u0644\u062F\u064F\u0651\u0646\u0652\u064A\u064E\u0627 \u062D\u064E\u0633\u064E\u0646\u064E\u0629\u064B", meaning: "Our Lord, give us good in this world", defaultTarget: 100, color: "#7a6b9b", colorLight: "#b6a9d1", colorDark: "#4a4063" },
+  { key: "ya-hayyu", label: "Ya Hayyu Ya Qayyum", arabic: "\u064A\u064E\u0627 \u062D\u064E\u064A\u064F\u0651 \u064A\u064E\u0627 \u0642\u064E\u064A\u064F\u0651\u0648\u0645\u064F", meaning: "O Ever-Living, O Sustainer", defaultTarget: 100, color: "#b87333", colorLight: "#e8b077", colorDark: "#7a4a1e" },
 ];
 
-/* Animated number — digit-by-digit slide */
 function AnimatedCounter({ value, color }: { value: number; color: string }) {
   const display = String(value).padStart(2, "0");
   const digits = display.split("");
-  if (booting) return <TasbeehSkeleton />;
+
   return (
     <div className="flex items-center justify-center">
       {digits.map((d, i) => (
@@ -75,8 +67,13 @@ function AnimatedCounter({ value, color }: { value: number; color: string }) {
   );
 }
 
-/* Bead ring around the digital counter */
-function BeadRing({ count, target, color, colorLight, colorDark }: {
+function BeadRing({
+  count,
+  target,
+  color,
+  colorLight,
+  colorDark,
+}: {
   count: number;
   target: number;
   color: string;
@@ -139,6 +136,7 @@ export function TasbeehTab() {
   const [showCustom, setShowCustom] = useState(false);
   const [pulse, setPulse] = useState(false);
   const [roundFlash, setRoundFlash] = useState(false);
+  const [booting, setBooting] = useState(true);
   const saveTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const userId = (session?.user as { id?: string } | undefined)?.id || "";
@@ -150,6 +148,12 @@ export function TasbeehTab() {
     dark: activePreset.colorDark,
   };
 
+  // Booting skeleton — 400ms then real UI
+  useEffect(() => {
+    const t = setTimeout(() => setBooting(false), 400);
+    return () => clearTimeout(t);
+  }, []);
+
   useEffect(() => {
     const t: Record<string, number> = {};
     DHIKR_PRESETS.forEach((d) => {
@@ -160,7 +164,7 @@ export function TasbeehTab() {
 
   useEffect(() => {
     if (!userId) return;
-    fetch(`/api/tasbeeh?userId=${userId}&date=${todayISO()}`)
+    fetch(`/api/tasbeeh?date=${todayISO()}`, { credentials: "same-origin" })
       .then((r) => r.json())
       .then((d) => setCounts(d?.counts || {}))
       .catch(() => {});
@@ -174,7 +178,7 @@ export function TasbeehTab() {
         fetch("/api/tasbeeh", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, date: todayISO(), counts: newCounts }),
+          body: JSON.stringify({ date: todayISO(), counts: newCounts }),
         }).catch(() => {});
       }, 800);
     },
@@ -188,7 +192,6 @@ export function TasbeehTab() {
       } catch {}
     }
 
-    // pulse
     setPulse(true);
     setTimeout(() => setPulse(false), 300);
 
@@ -199,7 +202,6 @@ export function TasbeehTab() {
     setCounts(newCounts);
 
     if (next % target === 0) {
-      // round complete
       setRounds((prev) => ({
         ...prev,
         [activeKey]: (prev[activeKey] ?? 0) + 1,
@@ -238,6 +240,9 @@ export function TasbeehTab() {
   const activeRound = rounds[activeKey] ?? 0;
   const countInRound = activeCount % activeTarget;
 
+  // Skeleton gate — must come AFTER all hooks, BEFORE main return
+  if (booting) return <TasbeehSkeleton />;
+
   return (
     <div className="relative min-h-dvh bg-canvas pb-32">
       <AmbientGlow
@@ -246,7 +251,6 @@ export function TasbeehTab() {
         style={{ top: -120, left: -80, opacity: 0.3 }}
       />
 
-      {/* Top bar */}
       <div className="relative flex items-center justify-between px-4 pt-6 pb-2">
         <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-ink-muted">
           Tasbeeh
@@ -257,22 +261,12 @@ export function TasbeehTab() {
           className="grid h-8 w-8 place-items-center rounded-full bg-white/70 text-ink-muted ring-1 ring-white/70"
           aria-label="Reset"
         >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
           </svg>
         </button>
       </div>
 
-      {/* Dhikr name + picker */}
       <div className="relative mx-4 mb-3">
         <button
           type="button"
@@ -282,41 +276,24 @@ export function TasbeehTab() {
           <p className="text-center font-serif text-[22px] font-bold text-ink">
             {activePreset.label}
           </p>
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-ink-muted"
-          >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-ink-muted">
             <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z" />
           </svg>
         </button>
-        <p
-          dir="rtl"
-          className="mt-1 text-center font-arabic text-[16px] text-ink-muted"
-        >
+        <p dir="rtl" className="mt-1 text-center font-arabic text-[16px] text-ink-muted">
           {activePreset.arabic}
         </p>
       </div>
 
-      {/* Counter / bead ring */}
       <div className="relative mx-auto mb-4 h-[320px] w-[320px]">
-        {/* Glow pulse */}
         <div
           className="pointer-events-none absolute inset-0 rounded-full transition-opacity duration-300"
           style={{
             background: `radial-gradient(circle, ${theme.color}44 0%, transparent 60%)`,
             opacity: pulse ? 1 : 0.15,
-            transitionProperty: "opacity",
           }}
         />
 
-        {/* Beads */}
         <BeadRing
           count={countInRound}
           target={activeTarget}
@@ -325,7 +302,6 @@ export function TasbeehTab() {
           colorDark={theme.dark}
         />
 
-        {/* Center tap area */}
         <button
           type="button"
           onClick={tap}
@@ -349,10 +325,7 @@ export function TasbeehTab() {
             {activeRound > 0 && (
               <p
                 className="mt-1 text-[9px] font-bold uppercase tracking-[0.18em] text-white/60"
-                style={{
-                  transition: "opacity 300ms",
-                  opacity: roundFlash ? 1 : 0.6,
-                }}
+                style={{ transition: "opacity 300ms", opacity: roundFlash ? 1 : 0.6 }}
               >
                 Round {String(activeRound).padStart(2, "0")}
               </p>
@@ -360,7 +333,6 @@ export function TasbeehTab() {
           </div>
         </button>
 
-        {/* Round flash badge */}
         {roundFlash && (
           <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <div className="rounded-full bg-white/30 px-5 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white backdrop-blur animate-pulse">
@@ -370,24 +342,18 @@ export function TasbeehTab() {
         )}
       </div>
 
-      {/* Target controls */}
       <div className="relative mx-4 mb-6">
         <div className="flex items-center justify-center gap-2">
           {[33, 100].map((t) => (
             <button
               key={t}
               type="button"
-              onClick={() => {
-                setTarget(t);
-                setShowCustom(false);
-              }}
+              onClick={() => { setTarget(t); setShowCustom(false); }}
               className="rounded-full px-4 py-1.5 text-[12px] font-bold transition-all"
               style={{
-                background:
-                  activeTarget === t ? theme.color : "rgba(255,255,255,0.7)",
+                background: activeTarget === t ? theme.color : "rgba(255,255,255,0.7)",
                 color: activeTarget === t ? "#fff" : "#6c746e",
-                boxShadow:
-                  activeTarget === t ? `0 4px 12px -4px ${theme.color}88` : "none",
+                boxShadow: activeTarget === t ? `0 4px 12px -4px ${theme.color}88` : "none",
               }}
             >
               {t}
@@ -397,21 +363,12 @@ export function TasbeehTab() {
             type="button"
             onClick={() => {
               if (showCustom) setShowCustom(false);
-              else {
-                setShowCustom(true);
-                setCustomInput(String(activeTarget));
-              }
+              else { setShowCustom(true); setCustomInput(String(activeTarget)); }
             }}
             className="rounded-full px-4 py-1.5 text-[12px] font-bold transition-all"
             style={{
-              background:
-                showCustom || ![33, 100].includes(activeTarget)
-                  ? theme.color
-                  : "rgba(255,255,255,0.7)",
-              color:
-                showCustom || ![33, 100].includes(activeTarget)
-                  ? "#fff"
-                  : "#6c746e",
+              background: showCustom || ![33, 100].includes(activeTarget) ? theme.color : "rgba(255,255,255,0.7)",
+              color: showCustom || ![33, 100].includes(activeTarget) ? "#fff" : "#6c746e",
             }}
           >
             Custom
@@ -429,10 +386,7 @@ export function TasbeehTab() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   const n = parseInt(customInput, 10);
-                  if (!isNaN(n)) {
-                    setTarget(n);
-                    setShowCustom(false);
-                  }
+                  if (!isNaN(n)) { setTarget(n); setShowCustom(false); }
                 }
               }}
               className="w-24 rounded-full bg-white/90 px-3 py-1.5 text-center font-serif text-[14px] font-semibold tabular-nums text-ink outline-none ring-1 ring-divider/50 focus:ring-forest/40"
@@ -442,10 +396,7 @@ export function TasbeehTab() {
               type="button"
               onClick={() => {
                 const n = parseInt(customInput, 10);
-                if (!isNaN(n)) {
-                  setTarget(n);
-                  setShowCustom(false);
-                }
+                if (!isNaN(n)) { setTarget(n); setShowCustom(false); }
               }}
               className="rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white"
               style={{ background: theme.color }}
@@ -456,14 +407,11 @@ export function TasbeehTab() {
         )}
       </div>
 
-      {/* Dhikr picker modal */}
       {showPicker && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
           <div className="max-h-[85vh] w-full max-w-[430px] overflow-y-auto rounded-[28px] bg-canvas p-5 shadow-2xl">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-serif text-[18px] font-bold text-ink">
-                Choose Dhikr
-              </h2>
+              <h2 className="font-serif text-[18px] font-bold text-ink">Choose Dhikr</h2>
               <button
                 type="button"
                 onClick={() => setShowPicker(false)}
@@ -478,38 +426,21 @@ export function TasbeehTab() {
                 <button
                   key={d.key}
                   type="button"
-                  onClick={() => {
-                    setActiveKey(d.key);
-                    setShowPicker(false);
-                  }}
+                  onClick={() => { setActiveKey(d.key); setShowPicker(false); }}
                   className="relative flex aspect-square flex-col items-center justify-center rounded-[20px] p-3 text-center transition active:scale-[0.97]"
                   style={{
-                    background:
-                      activeKey === d.key
-                        ? `linear-gradient(135deg, ${d.color} 0%, ${d.colorDark} 100%)`
-                        : "linear-gradient(135deg, #fbf9f4 0%, #f1ede3 100%)",
-                    boxShadow:
-                      activeKey === d.key
-                        ? `0 12px 24px -8px ${d.color}88`
-                        : "0 6px 14px -8px rgba(28,52,42,0.3)",
+                    background: activeKey === d.key
+                      ? `linear-gradient(135deg, ${d.color} 0%, ${d.colorDark} 100%)`
+                      : "linear-gradient(135deg, #fbf9f4 0%, #f1ede3 100%)",
+                    boxShadow: activeKey === d.key
+                      ? `0 12px 24px -8px ${d.color}88`
+                      : "0 6px 14px -8px rgba(28,52,42,0.3)",
                   }}
                 >
-                  <p
-                    dir="rtl"
-                    className="font-arabic leading-tight"
-                    style={{
-                      fontSize: 22,
-                      color: activeKey === d.key ? "#fff" : d.color,
-                    }}
-                  >
+                  <p dir="rtl" className="font-arabic leading-tight" style={{ fontSize: 22, color: activeKey === d.key ? "#fff" : d.color }}>
                     {d.arabic}
                   </p>
-                  <p
-                    className="mt-2 line-clamp-2 font-serif text-[12px] font-semibold leading-tight"
-                    style={{
-                      color: activeKey === d.key ? "#fff" : "#17261f",
-                    }}
-                  >
+                  <p className="mt-2 line-clamp-2 font-serif text-[12px] font-semibold leading-tight" style={{ color: activeKey === d.key ? "#fff" : "#17261f" }}>
                     {d.label}
                   </p>
                 </button>
