@@ -1,4 +1,5 @@
 "use client";
+import { HomeSkeleton } from "@/components/skeletons/HomeSkeleton";
 import { useHomeData } from "@/lib/home/useHomeData";
 import { Hero } from "./Hero";
 import { JamaatCard } from "./JamaatCard";
@@ -9,7 +10,8 @@ import { activeTimelineKey, hijriToday } from "@/lib/home/derive";
 
 export function HomeTab() {
   const { data, loading, error } = useHomeData();
-
+if (loading || !data) return <HomeSkeleton />;
+if (error) return <div className="p-6 text-sm text-ink-muted">Error: {error}</div>;
   if (error) {
     return (
       <div className="p-6 text-sm text-ink-muted">

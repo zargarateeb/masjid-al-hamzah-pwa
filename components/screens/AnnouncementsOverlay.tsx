@@ -1,4 +1,5 @@
 "use client";
+import { AnnouncementsSkeleton } from "@/components/skeletons/AnnouncementsSkeleton";
 import { useEffect, useState } from "react";
 import Overlay, {
   GlassCard,
@@ -83,10 +84,8 @@ export default function AnnouncementsOverlay() {
   return (
     <Overlay title="Announcements">
       {loading ? (
-        <div className="py-20 text-center text-[13px] text-ink-muted">
-          Loading…
-        </div>
-      ) : items.length === 0 ? (
+  <AnnouncementsSkeleton />
+) : items.length === 0 ? (
         <GlassCard variant="cream" padding="p-8" className="text-center">
           <div
             className="mx-auto grid h-14 w-14 place-items-center rounded-full"

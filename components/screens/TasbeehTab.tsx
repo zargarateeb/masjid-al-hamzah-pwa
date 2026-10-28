@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { todayISO } from "@/lib/utils";
+import { TasbeehSkeleton } from "@/components/skeletons/TasbeehSkeleton";
 import { AmbientGlow } from "../ui/Theme";
 
 interface DhikrPreset {
@@ -14,6 +15,13 @@ interface DhikrPreset {
   colorLight: string;
   colorDark: string;
 }
+
+const [booting, setBooting] = useState(true);
+useEffect(() => {
+  // Wait for session + initial counts load
+  const t = setTimeout(() => setBooting(false), 400);
+  return () => clearTimeout(t);
+}, []);
 
 const DHIKR_PRESETS: DhikrPreset[] = [
   { key: "allahuakbar", label: "Allahu Akbar", arabic: "اللَّهُ أَكْبَر", meaning: "Allah is the Greatest", defaultTarget: 34, color: "#b87333", colorLight: "#e8b077", colorDark: "#7a4a1e" },
@@ -34,7 +42,7 @@ const DHIKR_PRESETS: DhikrPreset[] = [
 function AnimatedCounter({ value, color }: { value: number; color: string }) {
   const display = String(value).padStart(2, "0");
   const digits = display.split("");
-
+  if (booting) return <TasbeehSkeleton />;
   return (
     <div className="flex items-center justify-center">
       {digits.map((d, i) => (

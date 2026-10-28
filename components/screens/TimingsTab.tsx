@@ -1,4 +1,5 @@
 "use client";
+import { TimingsSkeleton } from "@/components/skeletons/TimingsSkeleton";
 import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useAppStore } from "@/lib/store";
@@ -25,7 +26,6 @@ function PrayerIcon({ name, size = 20 }: { name: string; size?: number }) {
     </svg>
   );
 }
-
 function PrayerJourney({ sunPos, moonPos, isDaytime }: { sunPos: number; moonPos: number; isDaytime: boolean }) {
   function arcPoint(t: number) {
     const t2 = 1 - t;
