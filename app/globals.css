@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  /* Palette — adopted from Claude's reference-matched design */
+  --color-canvas:      #ece8de;
+  --color-page:        #d8d3c7;
+  --color-card:        #fbf9f4;
+  --color-card-soft:   #f1ede3;
+  --color-forest:      #1c4a3a;
+  --color-deep:        #143427;
+  --color-botanical:   #2f6350;
+  --color-sage:        #d9dfd3;
+  --color-sage-soft:   rgba(28, 74, 58, 0.12);
+  --color-gold:        #dec680;
+  --color-ink:         #17261f;
+  --color-ink-muted:   #6c746e;
+  --color-divider:     rgba(28, 74, 58, 0.16);
+  --color-glass:       rgba(250, 248, 243, 0.86);
+
+  --font-sans:   var(--font-sans), system-ui, -apple-system, sans-serif;
+  --font-serif:  var(--font-serif), "Playfair Display", Georgia, serif;
+  --font-arabic: var(--font-arabic), serif;
+
+  --radius-card:    30px;
+  --radius-feature: 20px;
+  --radius-nav:     36px;
+  --radius-pill:    16px;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html, body {
+  background: transparent;
+  color: var(--color-ink);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Shared icon sizing — matches Claude's `.ic` class */
+.ic {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
