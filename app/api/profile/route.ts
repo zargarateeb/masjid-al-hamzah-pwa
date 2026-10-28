@@ -3,18 +3,21 @@ import { connectDB } from '@/lib/mongodb';
 import User from '@/lib/models/User';
 import PrayerLog from '@/lib/models/PrayerLog';
 import TasbeehLog from '@/lib/models/TasbeehLog';
+import { getSessionUserId, getSessionEmail } from '@/lib/authHelpers';
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId');
-    const email = searchParams.get('email');
-    if (!userId && !email) return NextResponse.json({ error: 'Missing userId or email' }, { status: 400 });
+    const sessionUserId = await getSessionUserId();
+    const sessionEmail = await getSessionEmail();
+
+    if (!sessionUserId && !sessionEmail) {
+      return NextResponse.json({ error: 'Sign in required' }, { status: 401 });
+    }
 
     await connectDB();
-    const user = userId
-      ? await User.findById(userId).lean()
-      : await User.findOne({ email }).lean();
+    const user = sessionUserId
+      ? await User.findById(sessionUserId).lean()
+      : await User.findOne({ email: sessionEmail }).lean();
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
     const uid = (user as any)._id.toString();
@@ -87,21 +90,30 @@ export async function GET(req: Request) {
       },
     });
   } catch (e: any) {
-    console.error('❌ Profile GET error:', e?.message || e);
-    return NextResponse.json({ error: e?.message }, { status: 500 });
+    console.error('❌ profile GET error:', e?.message || e);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
+    const sessionUserId = await getSessionUserId();
+    const sessionEmail = await getSessionEmail();
+
+    if (!sessionUserId && !sessionEmail) {
+      return NextResponse.json({ error: 'Sign in required' }, { status: 401 });
+    }
+
     const body = await req.json();
-    const { userId, email, name, phone, city, bio, image } = body;
+    const { name, phone, city, bio, image } = body;
 
     await connectDB();
 
-    // Find the user by id first, fall back to email
-    let user = userId ? await User.findById(userId) : null;
-    if (!user && email) user = await User.findOne({ email });
+    // Look up by session identity only — never trust userId/email from the body
+    let user = sessionUserId
+      ? await User.findById(sessionUserId)
+      : null;
+    if (!user && sessionEmail) user = await User.findOne({ email: sessionEmail });
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
     const update: any = {};
@@ -114,7 +126,7 @@ export async function POST(req: Request) {
     await User.findByIdAndUpdate((user as any)._id, update);
     return NextResponse.json({ ok: true });
   } catch (e: any) {
-    console.error('❌ Profile POST error:', e?.message || e);
-    return NextResponse.json({ error: e?.message }, { status: 500 });
+    console.error('❌ profile POST error:', e?.message || e);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

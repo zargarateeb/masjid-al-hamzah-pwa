@@ -1,48 +1,50 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import PrayerLog from '@/lib/models/PrayerLog';
+import { getSessionUserId } from '@/lib/authHelpers';
 
 export async function GET(req: Request) {
   try {
+    const sessionUserId = await getSessionUserId();
+    if (!sessionUserId) {
+      return NextResponse.json({ checked: {}, error: 'Sign in required' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId');
     const date = searchParams.get('date');
-    if (!userId || !date) {
-      return NextResponse.json({ checked: {}, error: 'Missing params' });
+    if (!date) {
+      return NextResponse.json({ checked: {}, error: 'Missing date' }, { status: 400 });
     }
 
     await connectDB();
-    const log = await PrayerLog.findOne({ userId, date }).lean();
+    const log = await PrayerLog.findOne({ userId: sessionUserId, date }).lean();
     return NextResponse.json({
       checked: log?.checked || {},
       pointsEarned: log?.pointsEarned || 0,
     });
   } catch (e: any) {
-    console.error('❌ Tracking GET error:', e?.message || e);
-    return NextResponse.json({ checked: {}, error: e?.message });
+    console.error('❌ tracking GET error:', e?.message || e);
+    return NextResponse.json({ checked: {}, error: 'Server error' }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { userId, date, checked } = body;
+    const sessionUserId = await getSessionUserId();
+    if (!sessionUserId) {
+      return NextResponse.json({ error: 'Sign in required' }, { status: 401 });
+    }
 
-    if (!userId || !date || !checked) {
-      return NextResponse.json(
-        { error: 'Missing fields' },
-        { status: 400 }
-      );
+    const body = await req.json();
+    const { date, checked } = body;
+
+    if (!date || !checked) {
+      return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
     await connectDB();
 
-    const POINTS: Record<string, number> = {
-      fard: 5,
-      jamaat: 3,
-      sunnat: 2,
-      dua: 1,
-    };
+    const POINTS: Record<string, number> = { fard: 5, jamaat: 3, sunnat: 2, dua: 1 };
     const prayers = ['fajr', 'zuhr', 'asr', 'maghrib', 'isha'];
 
     let points = 0;
@@ -59,9 +61,9 @@ export async function POST(req: Request) {
     if (allFardBonus) points += 10;
 
     const updated = await PrayerLog.findOneAndUpdate(
-      { userId, date },
+      { userId: sessionUserId, date },
       {
-        userId,
+        userId: sessionUserId,
         date,
         checked,
         fardCount,
@@ -78,7 +80,7 @@ export async function POST(req: Request) {
       allFardBonus,
     });
   } catch (e: any) {
-    console.error('❌ Tracking POST error:', e?.message || e);
-    return NextResponse.json({ error: e?.message }, { status: 500 });
+    console.error('❌ tracking POST error:', e?.message || e);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

@@ -5,18 +5,13 @@ import PrayerLog from '@/lib/models/PrayerLog';
 import TasbeehLog from '@/lib/models/TasbeehLog';
 import Debate from '@/lib/models/Debate';
 import Announcement from '@/lib/models/Announcement';
-import { getSuperAdminEmails } from '@/lib/constants';
+import { requireSuperAdmin } from '@/lib/authHelpers';
 
-function checkAuth(email: string | null): boolean {
-  if (!email) return false;
-  return getSuperAdminEmails().includes(email.toLowerCase());
-}
-
-export async function GET(req: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(req.url);
-    const email = searchParams.get('email');
-    if (!checkAuth(email)) {
+    // Verify session email is in SUPER_ADMIN_EMAILS. Never trust client input.
+    const adminEmail = await requireSuperAdmin();
+    if (!adminEmail) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -36,7 +31,6 @@ export async function GET(req: Request) {
       Announcement.countDocuments(),
     ]);
 
-    // Total tasbeeh counts across all users
     const tasbeehLogs = await TasbeehLog.find().lean();
     const totalTasbeeh = tasbeehLogs.reduce((sum, log: any) => {
       return sum + Object.values(log.counts || {}).reduce((a: any, b: any) => a + (b || 0), 0);
@@ -53,6 +47,7 @@ export async function GET(req: Request) {
       },
     });
   } catch (e: any) {
-    return NextResponse.json({ error: e?.message }, { status: 500 });
+    console.error('❌ super/stats error:', e?.message || e);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

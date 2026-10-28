@@ -1,18 +1,12 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import User from '@/lib/models/User';
-import { getSuperAdminEmails } from '@/lib/constants';
+import { requireSuperAdmin } from '@/lib/authHelpers';
 
-function checkAuth(email: string | null): boolean {
-  if (!email) return false;
-  return getSuperAdminEmails().includes(email.toLowerCase());
-}
-
-export async function GET(req: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(req.url);
-    const email = searchParams.get('email');
-    if (!checkAuth(email)) {
+    const adminEmail = await requireSuperAdmin();
+    if (!adminEmail) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -24,6 +18,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ users });
   } catch (e: any) {
-    return NextResponse.json({ error: e?.message }, { status: 500 });
+    console.error('❌ super/users error:', e?.message || e);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

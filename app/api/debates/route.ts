@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import Debate from '@/lib/models/Debate';
+import { verifyAdminPin } from '@/lib/adminAuth';
+import { getSessionUserId, getSessionEmail } from '@/lib/authHelpers';
 
 export async function GET() {
   try {
@@ -12,7 +14,8 @@ export async function GET() {
     }));
     return NextResponse.json({ items: normalized });
   } catch (e: any) {
-    return NextResponse.json({ items: [], error: e?.message });
+    console.error('❌ debates GET error:', e?.message || e);
+    return NextResponse.json({ items: [], error: 'Server error' });
   }
 }
 
@@ -26,6 +29,12 @@ export async function POST(req: Request) {
     }
     if (!proposerUserId) {
       return NextResponse.json({ error: 'Sign in required' }, { status: 401 });
+    }
+
+    // Verify the client-supplied proposerUserId matches the session
+    const sessionUserId = await getSessionUserId();
+    if (!sessionUserId || sessionUserId !== proposerUserId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await connectDB();
@@ -43,7 +52,8 @@ export async function POST(req: Request) {
     });
     return NextResponse.json({ ok: true, item: created });
   } catch (e: any) {
-    return NextResponse.json({ error: e?.message }, { status: 500 });
+    console.error('❌ debates POST error:', e?.message || e);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
 
@@ -56,6 +66,14 @@ export async function PATCH(req: Request) {
     }
     if (type !== 'accept' && type !== 'counter') {
       return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
+    }
+
+    // Verify responderUserId matches session if provided
+    if (responderUserId) {
+      const sessionUserId = await getSessionUserId();
+      if (!sessionUserId || sessionUserId !== responderUserId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
     }
 
     await connectDB();
@@ -82,7 +100,8 @@ export async function PATCH(req: Request) {
     await debate.save();
     return NextResponse.json({ ok: true, item: debate });
   } catch (e: any) {
-    return NextResponse.json({ error: e?.message }, { status: 500 });
+    console.error('❌ debates PATCH error:', e?.message || e);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
 
@@ -91,40 +110,54 @@ export async function DELETE(req: Request) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
     const pin = searchParams.get('pin');
-    const userId = searchParams.get('userId');
 
-    if (pin !== process.env.ADMIN_PIN && !userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
 
-    await connectDB();
-    const debate = await Debate.findById(id);
-    if (!debate) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    // Either PIN auth (admin) OR session ownership (proposer)
+    const adminCheck = verifyAdminPin(pin);
+    const isAdmin = adminCheck.ok;
 
-    // Allow if admin (pin) OR owner (userId matches proposerUserId)
-    const isAdmin = pin === process.env.ADMIN_PIN;
-    const isOwner = userId && debate.proposerUserId === userId;
+    const sessionUserId = await getSessionUserId();
+    let isOwner = false;
 
-    if (!isAdmin && !isOwner) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!isAdmin) {
+      if (!sessionUserId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      await connectDB();
+      const debate = await Debate.findById(id).lean();
+      if (!debate) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+      isOwner = (debate as any).proposerUserId === sessionUserId;
+      if (!isOwner) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
     }
 
+    await connectDB();
     await Debate.findByIdAndDelete(id);
     return NextResponse.json({ ok: true });
   } catch (e: any) {
-    return NextResponse.json({ error: e?.message }, { status: 500 });
+    console.error('❌ debates DELETE error:', e?.message || e);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
 
-// Delete a single response from a debate
 export async function PUT(req: Request) {
   try {
     const body = await req.json();
-    const { id, responseId, email, pin } = body;
+    const { id, responseId, pin } = body;
 
     if (!id || !responseId) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+    }
+
+    // Either PIN auth (admin) OR session email matching responder email
+    const adminCheck = verifyAdminPin(pin);
+    const isAdmin = adminCheck.ok;
+
+    const sessionEmail = await getSessionEmail();
+    if (!isAdmin && !sessionEmail) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await connectDB();
@@ -135,8 +168,7 @@ export async function PUT(req: Request) {
     const target = responses.find((r: any) => r._id?.toString() === responseId);
     if (!target) return NextResponse.json({ error: 'Response not found' }, { status: 404 });
 
-    const isAdmin = pin === process.env.ADMIN_PIN;
-    const isOwner = email && target.responderEmail === email;
+    const isOwner = sessionEmail && target.responderEmail === sessionEmail;
 
     if (!isAdmin && !isOwner) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -146,6 +178,7 @@ export async function PUT(req: Request) {
     await debate.save();
     return NextResponse.json({ ok: true, item: debate });
   } catch (e: any) {
-    return NextResponse.json({ error: e?.message }, { status: 500 });
+    console.error('❌ debates PUT error:', e?.message || e);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
