@@ -605,7 +605,7 @@ export function TimingsTab() {
           )}
 
           {/* countdown / state */}
-          <div key={fadeKey} className="absolute inset-x-0 top-[40%] px-6 text-center" style={fadeStyle}>
+          <div key={fadeKey} className="absolute inset-x-0 top-[50%] px-6 text-center" style={fadeStyle}>
             {loading ? (
               <div className="mx-auto mt-3 space-y-3" aria-busy="true" aria-label="Loading prayer times">
                 <div className="mx-auto h-4 w-28 animate-pulse rounded-full bg-forest/10 motion-reduce:animate-none" />
@@ -636,7 +636,7 @@ export function TimingsTab() {
           <div key={`body-${fadeKey}`} style={fadeStyle}>
             {/* ------------------------ SUNRISE TO SUNSET ------------------------ */}
             {dayline && (
-              <section aria-label={`${dayline.startLabel} to ${dayline.endLabel}`} className="mx-5 mt-1">
+              <section aria-label={`${dayline.startLabel} to ${dayline.endLabel}`} className="mx-5 -mt-35">
                 <div className="relative h-[60px]">
                   <span className="absolute left-3 top-[16px] text-[#f09a2e]"><PrayerIcon name="fajr" size={30} /></span>
                   <span className="absolute right-3 top-[16px] text-[#e0523a]"><PrayerIcon name="maghrib" size={30} /></span>
@@ -659,7 +659,7 @@ export function TimingsTab() {
             {/* ------------------------- SELECTED DETAILS ------------------------ */}
             <section
               aria-label={`${selected.name} details`}
-              className="mx-4 mt-5 rounded-[26px] bg-[#fffdf8]/95 p-4 ring-1 ring-[#e9e2cf] shadow-[0_10px_28px_-16px_rgba(28,52,42,0.35)]"
+              className="mx-4 mt-0 rounded-[26px] bg-[#fffdf8]/95 p-4 ring-1 ring-[#e9e2cf] shadow-[0_10px_28px_-16px_rgba(28,52,42,0.35)]"
             >
               <div className="flex items-center gap-4">
                 <span className="grid h-16 w-16 shrink-0 place-items-center rounded-full" style={{ backgroundColor: selectedTheme.box, color: selectedTheme.ring }}>
@@ -728,10 +728,10 @@ export function TimingsTab() {
                             type="button"
                             onClick={() => setSelectedKey(p.key)}
                             aria-pressed={isSelected}
-                            className="flex min-w-0 flex-1 items-center gap-2.5 py-3 pl-3 text-left active:bg-forest/[0.03] min-[380px]:gap-3"
+                            className="flex min-w-0 flex-1 items-center gap-2.5 py-5 pl-3 text-left active:bg-forest/[0.03] min-[380px]:gap-3"
                           >
                             <span
-                              className="relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-[14px] min-[380px]:h-14 min-[380px]:w-14 min-[380px]:rounded-2xl"
+                              className="relative grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl min-[380px]:h-16 min-[380px]:w-16"
                               style={{ backgroundColor: theme.box, color: theme.ring }}
                             >
                               {imgBroken ? (
