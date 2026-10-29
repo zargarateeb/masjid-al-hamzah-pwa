@@ -17,11 +17,11 @@ export const LEAF_BACKGROUND =
 
 // ─── Per-prayer (mihrab card + prayer list) ────────────
 export const PRAYER_IMAGES: Record<string, string> = {
-  fajr: 'https://ik.imagekit.io/5xwchyocd7/FAJR.jpg',
-  zuhr: 'https://ik.imagekit.io/5xwchyocd7/ZUHR.png',
-  asr: 'https://ik.imagekit.io/5xwchyocd7/ASR%20(1).jpg',
-  maghrib: 'https://ik.imagekit.io/5xwchyocd7/MGRB.png',
-  isha: 'https://ik.imagekit.io/5xwchyocd7/ISHA.png',
+  fajr: 'https://ik.imagekit.io/rgbcpayfx/fajr-time.jpg',
+  zuhr: 'https://ik.imagekit.io/rgbcpayfx/zuhr-time.jpg',
+  asr: 'https://ik.imagekit.io/rgbcpayfx/asr-time.jpg',
+  maghrib: 'https://ik.imagekit.io/rgbcpayfx/maghrib-time.jpg',
+  isha: 'https://ik.imagekit.io/rgbcpayfx/isha-time.jpg',
   jummah: 'https://ik.imagekit.io/5xwchyocd7/ZUHR.png',
 };
 
