@@ -1,5 +1,7 @@
 @import "tailwindcss";
-
+@source "../components";
+@source "../lib";
+@source "../app";
 @theme {
   /* Palette — adopted from Claude's reference-matched design */
   --color-canvas:      #ece8de;

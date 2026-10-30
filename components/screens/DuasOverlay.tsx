@@ -1,6 +1,6 @@
 "use client";
-import { useMemo, useState } from "react";
 import { useAppStore } from "@/lib/store";
+import { useEffect, useMemo, useState } from "react";
 import { DUAS, DUA_CATEGORIES } from "@/lib/data/duas";
 import { duaCategoryImage } from "@/lib/images";
 
@@ -49,7 +49,22 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export default function DuasOverlay() {
   const popScreen = useAppStore((s) => s.popScreen);
+  const lastSearchTarget = useAppStore((s) => s.lastSearchTarget);
+  const setSearchTarget = useAppStore((s) => s.setSearchTarget);
   const [openCategory, setOpenCategory] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  // Auto-open the exact dua if we came from search
+  useEffect(() => {
+    if (lastSearchTarget?.type === "dua") {
+      const dua = DUAS.find((d) => d.id === lastSearchTarget.id);
+      if (dua) {
+        setOpenCategory(dua.category);
+        setExpandedId(dua.id);
+      }
+      setSearchTarget(null);
+    }
+  }, [lastSearchTarget, setSearchTarget]);
 
   const counts = useMemo(() => {
     const c: Record<string, number> = {};

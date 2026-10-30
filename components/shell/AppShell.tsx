@@ -21,6 +21,7 @@ import { SettingsOverlay } from "@/components/screens/SettingsOverlay";
 import { QiblaOverlay } from "@/components/screens/QiblaOverlay";
 import AdminPinOverlay from "@/components/screens/AdminPinOverlay";
 import { AdminOverlay } from "@/components/screens/AdminOverlay";
+import { SearchOverlay } from "@/components/screens/SearchOverlay";
 import { SuperAdminOverlay } from "@/components/screens/SuperAdminOverlay";
 
 export function AppShell() {
@@ -61,6 +62,7 @@ export function AppShell() {
                 {s === "admin" && <AdminOverlay />}
                 {s === "super-admin" && <SuperAdminOverlay />}
                 {s === "edit-times" && <PrayerTimeEditorOverlay />}
+                {s === "search" && <SearchOverlay />}
               </div>
             </div>
           ))}

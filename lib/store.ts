@@ -16,20 +16,24 @@ export type OverlayScreen =
   | 'duas'
   | 'our-masjid'
   | 'super-admin'
-  | 'edit-times';
+  | 'edit-times'
+  | 'search';
 
 interface AppState {
   activeTab: Tab;
   overlayStack: OverlayScreen[];
+  lastSearchTarget: { type: string; id: string | number } | null;
   setTab: (t: Tab) => void;
   pushScreen: (s: OverlayScreen) => void;
   popScreen: () => void;
   clearStack: () => void;
+  setSearchTarget: (t: { type: string; id: string | number } | null) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
   activeTab: 'home',
   overlayStack: [],
+  lastSearchTarget: null,
 
   setTab: (t) => {
     const current = get().activeTab;
@@ -69,4 +73,6 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   clearStack: () => set({ overlayStack: [] }),
+
+  setSearchTarget: (t) => set({ lastSearchTarget: t }),
 }));

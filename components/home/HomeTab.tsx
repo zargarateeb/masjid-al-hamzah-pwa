@@ -35,7 +35,7 @@ if (error) return <div className="p-6 text-sm text-ink-muted">Error: {error}</di
         location="Buchpora, Srinagar"
       />
 
-      <div className="relative z-10 -mt-0 px-2">
+      <div className="relative z-10 -mt-0 px-6">
         <JamaatCard
           jamaat={loadingOrData ? null : data!.jamaat}
           loading={loadingOrData}
@@ -44,7 +44,7 @@ if (error) return <div className="p-6 text-sm text-ink-muted">Error: {error}</di
 
       {!loadingOrData && (
         <>
-          <div className="px-2">
+          <div className="px-6">
             <PrayerTimeline rows={data!.prayerRows} activeKey={upcoming} />
             <FeatureGrid />
             <Announcements items={data!.announcements} />

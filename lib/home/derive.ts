@@ -66,34 +66,59 @@ function subtractMinutes(hhmm: string, minutes: number): string {
 /**
  * The "NEXT JAMAAT" card.
  * DB stores JAMAAT time. Azaan = Jamaat − offset.
- * - Friday with jummah set → Jumu'ah
- * - After Isha passes → tomorrow's Fajr (countdown must be positive)
+ * - Friday with jummah still upcoming OR within 10-min grace → Jumu'ah
+ * - After grace window of last prayer → tomorrow's Fajr (countdown must be positive)
+ * The 10-min grace keeps the current prayer on screen briefly after jamaat starts.
  */
 export function buildJamaatInfo(
   doc: PrayerTimeDoc,
   now = new Date(),
 ): JamaatInfo | null {
+  const nowMs = now.getTime();
+  const GRACE_MS = 10 * 60 * 1000; // 10 minutes
+
   const isFriday = now.getDay() === 5;
 
+  // Friday: check Jumu'ah first
   if (isFriday && doc.jummah) {
     const jamaat = doc.jummah;
-    const azaan = subtractMinutes(jamaat, PRAYER_OFFSETS.jummah);
-    return {
-      title: "Jumu'ah",
-      azaanDisplay: formatTime12(azaan),
-      azaanIso: time24ToIso(azaan, 0, now),
-      jamaatDisplay: formatTime12(jamaat),
-      jamaatIso: time24ToIso(jamaat, 0, now),
-      windowStartIso: time24ToIso(azaan, 0, now),
-    };
+    const jamaatIso = time24ToIso(jamaat, 0, now);
+    const jamaatMs = new Date(jamaatIso).getTime();
+
+    // If Jumu'ah hasn't happened yet, OR is within the 10-min grace → show it
+    if (nowMs < jamaatMs + GRACE_MS) {
+      const azaan = subtractMinutes(jamaat, PRAYER_OFFSETS.jummah);
+      return {
+        title: "Jumu'ah",
+        azaanDisplay: formatTime12(azaan),
+        azaanIso: time24ToIso(azaan, 0, now),
+        jamaatDisplay: formatTime12(jamaat),
+        jamaatIso,
+        windowStartIso: time24ToIso(azaan, 0, now),
+      };
+    }
+    // Past the grace window → fall through to next prayer (Asr, Maghrib, etc.)
   }
 
   const rows = buildPrayerRows(doc);
-  const nextKey = nextPrayerKey(rows, now);
 
-  // If all today's prayers have passed, roll over to tomorrow's Fajr
-  const daysOffset = nextKey === null ? 1 : 0;
-  const prayerKey: PrayerKey = nextKey ?? "fajr";
+  // Find the first prayer whose jamaat time + 10 min grace is still in the future.
+  // Means: even if jamaat has just started, we keep it as "current" for 10 min.
+  let chosenKey: PrayerKey | null = null;
+  for (const r of rows) {
+    const m = timeToMinutes(r.time24);
+    if (m == null) continue;
+    const prayerMs = time24ToIso(r.time24, 0, now);
+    const prayerTime = new Date(prayerMs).getTime();
+    if (nowMs < prayerTime + GRACE_MS) {
+      chosenKey = r.key;
+      break;
+    }
+  }
+
+  // If all prayers have fully passed (including grace), roll to tomorrow's Fajr
+  const daysOffset = chosenKey === null ? 1 : 0;
+  const prayerKey: PrayerKey = chosenKey ?? "fajr";
 
   const jamaat = doc[prayerKey];
   if (!jamaat) return null;

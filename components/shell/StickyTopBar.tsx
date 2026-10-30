@@ -1,10 +1,12 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useAppStore } from "@/lib/store";
 import { assets } from "@/lib/design/assets";
 
 export function StickyTopBar() {
   const [scrolled, setScrolled] = useState(false);
+  const pushScreen = useAppStore((s) => s.pushScreen);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -80,7 +82,7 @@ export function StickyTopBar() {
           <button
             type="button"
             aria-label="Search"
-            onClick={() => window.alert("Search \u2014 coming soon")}
+            onClick={() => pushScreen("search")}
             className={`grid h-9 w-9 place-items-center rounded-full transition ${
               scrolled
                 ? "bg-forest/10 text-forest"
@@ -103,7 +105,7 @@ export function StickyTopBar() {
           <button
             type="button"
             aria-label="Notifications"
-            onClick={() => window.alert("Notifications \u2014 coming soon")}
+            onClick={() => pushScreen("announcements")}
             className={`relative grid h-9 w-9 place-items-center rounded-full transition ${
               scrolled
                 ? "bg-forest/10 text-forest"

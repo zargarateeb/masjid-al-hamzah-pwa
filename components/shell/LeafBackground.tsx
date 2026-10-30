@@ -1,6 +1,10 @@
 import { assets } from "@/lib/design/assets";
 
-export function LeafBackground({ variant = "plain" }: { variant?: "composite" | "plain" }) {
+export function LeafBackground({
+  variant = "plain",
+}: {
+  variant?: "composite" | "plain";
+}) {
   const bgImage =
     variant === "composite"
       ? `url("https://ik.imagekit.io/rgbcpayfx/New%20Project%203%20_1691533_.jpg?updatedAt=1792544722084")`

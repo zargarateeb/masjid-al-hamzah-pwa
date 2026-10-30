@@ -180,7 +180,21 @@ export function JamaatCard({
 
           <div className="mt-5 h-px w-full bg-divider" />
 
-          <div className="mt-4 flex items-center gap-2 text-[12px] text-ink-muted">
+        {remaining > 0 ? (
+  <div className="mt-4 flex items-center gap-2 text-[12px] text-ink-muted">
+    <span>Starts in</span>
+    <span className="font-semibold tabular-nums text-forest">
+      {formatCountdown(remaining)}
+    </span>
+  </div>
+) : (
+  <div className="mt-4 flex items-center gap-2 text-[12px] text-forest">
+    <span className="grid h-2 w-2 place-items-center rounded-full bg-forest/70 animate-pulse" />
+    <span className="font-semibold uppercase tracking-[0.12em]">
+      Currently in prayer
+    </span>
+  </div>
+)}<div className="mt-4 flex items-center gap-2 text-[12px] text-ink-muted">
             <span>Starts in</span>
             <span className="font-semibold tabular-nums text-forest">
               {formatCountdown(remaining)}

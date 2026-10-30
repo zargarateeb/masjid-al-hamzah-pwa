@@ -6,6 +6,7 @@ import Overlay, {
   CornerFlourish,
 } from "../ui/Theme";
 import { NAMES_OF_PROPHET } from "@/lib/data/namesOfProphet";
+import { useAppStore } from "@/lib/store";
 
 const PALETTE = [
   { name: "Gold", accent: "#C9A45D", dark: "#8a6b15", tint: "#fdf6e3" },
@@ -18,6 +19,16 @@ const PALETTE = [
 
 export function NamesOfProphetOverlay() {
   const [i, setI] = useState(0);
+  const lastSearchTarget = useAppStore((s) => s.lastSearchTarget);
+const setSearchTarget = useAppStore((s) => s.setSearchTarget);
+
+useEffect(() => {
+  if (lastSearchTarget?.type === "name-prophet") {
+    const idx = NAMES_OF_PROPHET.findIndex((n) => n.id === lastSearchTarget.id);
+    if (idx >= 0) setI(idx);
+    setSearchTarget(null);
+  }
+}, [lastSearchTarget, setSearchTarget]);
   const [animKey, setAnimKey] = useState(0);
   const [tilt, setTilt] = useState({ rx: 0, ry: 0, mx: 50, my: 50 });
   const cardRef = useRef<HTMLDivElement>(null);

@@ -1,5 +1,6 @@
 "use client";
 import type { HeroUser } from "@/lib/home/types";
+import { useAppStore } from "@/lib/store";
 const QUOTE = "\u201CAnd establish prayer and give zakah.\u201D";
 const QUOTE_REF = "Qur\u2019an 2:43";
 
@@ -22,10 +23,11 @@ export function Hero({
   location: string;
 }) {
   const today = formatGregorian(new Date());
+  const pushScreen = useAppStore((s) => s.pushScreen);
 
   return (
     <header
-      className="relative isolate px-2 pb-6 text-white"
+      className="relative isolate px-6 pb-6 text-white"
       style={{
         paddingTop: 0,
         minHeight: 70,
