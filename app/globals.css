@@ -62,3 +62,8 @@ button {
   stroke-linejoin: round;
   flex: none;
 }
+
+html, body {
+  overscroll-behavior: none;
+  overscroll-behavior-y: contain;
+}

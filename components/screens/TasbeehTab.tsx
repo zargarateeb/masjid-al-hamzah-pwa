@@ -244,12 +244,23 @@ export function TasbeehTab() {
   if (booting) return <TasbeehSkeleton />;
 
   return (
-    <div className="relative min-h-dvh bg-canvas pb-32">
-      <AmbientGlow
-        color="emerald"
-        size={400}
-        style={{ top: -120, left: -80, opacity: 0.3 }}
-      />
+    <div className="relative h-dvh overflow-hidden pb-32">
+  {/* Glass-morph background — semi-transparent blur behind the whole tab */}
+  <div
+  aria-hidden="true"
+  className="pointer-events-none absolute inset-0 -z-0"
+  style={{
+    background: "linear-gradient(160deg, rgba(251,249,244,0.20) 0%, rgba(241,237,227,0.15) 50%, rgba(250,248,240,0.20) 100%)",
+    backdropFilter: "blur(40px) saturate(1.35)",
+    WebkitBackdropFilter: "blur(32px) saturate(1.25)",
+  }}
+/>
+
+  <AmbientGlow
+    color="emerald"
+    size={400}
+    style={{ top: -120, left: -80, opacity: 0.3 }}
+  />
 
       <div className="relative flex items-center justify-between px-4 pt-6 pb-2">
         <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-ink-muted">
@@ -285,9 +296,9 @@ export function TasbeehTab() {
         </p>
       </div>
 
-      <div className="relative mx-auto mb-4 h-[320px] w-[320px]">
+      <div className="relative mx-auto mb-4 h-[min(320px,75vw)] w-[min(320px,75vw)]">
         <div
-          className="pointer-events-none absolute inset-0 rounded-full transition-opacity duration-300"
+          className="absolute inset-[55px] grid place-items-center rounded-full transition-transform active:scale-[0.96]"
           style={{
             background: `radial-gradient(circle, ${theme.color}44 0%, transparent 60%)`,
             opacity: pulse ? 1 : 0.15,

@@ -1,6 +1,7 @@
 "use client";
 import { useAppStore } from "@/lib/store";
 import { BottomNav } from "./BottomNav";
+import { OfflineBanner } from "@/components/ui/OfflineBanner";
 import { LeafBackground } from "./LeafBackground";
 import { StickyTopBar } from "./StickyTopBar";
 import PrayerTimeEditorOverlay from "@/components/screens/PrayerTimeEditorOverlay";
@@ -29,6 +30,7 @@ export function AppShell() {
   return (
     <>
       <LeafBackground variant={activeTab === "home" ? "composite" : "plain"} />
+      <OfflineBanner />
       <div className="relative min-h-dvh bg-transparent">
         {activeTab === "home" && <StickyTopBar />}
         <main className="relative mx-auto w-full max-w-[540px] pb-32">

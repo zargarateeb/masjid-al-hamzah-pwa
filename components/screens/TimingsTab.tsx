@@ -6,7 +6,7 @@ import { useAppStore } from "@/lib/store";
 import { todayISO, timeToMinutes, formatTime12 } from "@/lib/utils";
 import { effectivePrayers } from "@/lib/prayer-times/normalize";
 import { prayerImage } from "@/lib/images";
-
+import * as SunCalc from "suncalc";
 /* -------------------------------------------------------------------------- */
 /*  Constants & helpers                                                       */
 /* -------------------------------------------------------------------------- */
@@ -390,23 +390,32 @@ export function TimingsTab() {
   /* ---------------------------- sunrise/sunset ---------------------------- */
 
   const dayline = useMemo(() => {
-    if (!times) return null;
-    const sunrise = pickTime(times, ["sunrise", "shuruq", "sunRise", "sun_rise", "ishraq"]);
-    const sunset = pickTime(times, ["sunset", "sunSet", "sun_set"]);
-    const startTime = sunrise ?? pickTime(times, ["fajr"]);
-    const endTime = sunset ?? pickTime(times, ["maghrib"]);
-    const startSec = toSeconds(startTime);
-    const endSec = toSeconds(endTime);
-    if (!startTime || !endTime || startSec === null || endSec === null || endSec <= startSec) return null;
-    return {
-      startLabel: sunrise ? "Sunrise" : "Fajr",
-      startTime,
-      endLabel: sunset ? "Sunset" : "Maghrib",
-      endTime,
-      startSec,
-      endSec,
-    };
-  }, [times]);
+  // Real astronomical sunrise/sunset for Srinagar (34.0837°N, 74.7973°E)
+  const SRINAGAR_LAT = 34.0837;
+  const SRINAGAR_LNG = 74.7973;
+  const d = new Date(selectedDate + "T12:00:00");
+  const sunTimes = SunCalc.getTimes(d, SRINAGAR_LAT, SRINAGAR_LNG);
+  const sunrise = sunTimes.sunrise;
+  const sunset = sunTimes.sunset;
+  
+  if (!sunrise || !sunset || isNaN(sunrise.getTime()) || isNaN(sunset.getTime())) {
+    return null;
+  }
+  
+  const startSec = sunrise.getHours() * 3600 + sunrise.getMinutes() * 60;
+  const endSec = sunset.getHours() * 3600 + sunset.getMinutes() * 60;
+  
+  if (endSec <= startSec) return null;
+  
+  return {
+    startLabel: "Sunrise",
+    startTime: `${pad(sunrise.getHours())}:${pad(sunrise.getMinutes())}`,
+    endLabel: "Sunset",
+    endTime: `${pad(sunset.getHours())}:${pad(sunset.getMinutes())}`,
+    startSec,
+    endSec,
+  };
+}, [selectedDate]);
 
   const noon = list.find((p) => p.key === "zuhr");
   const dayPct = dayline
@@ -474,7 +483,7 @@ export function TimingsTab() {
   const transitionStyle = (css: string) => (reducedMotion ? "none" : css);
 
   return (
-    <div className="relative min-h-dvh overflow-x-clip bg-[linear-gradient(180deg,#f6eedb_0%,#faf6ea_30%,#fbf9f4_100%)] pb-[calc(8rem+env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)]">
+    <div className="relative min-h-dvh overflow-x-clip bg-[linear-gradient(180deg,#f6eedb_0%,#faf6ea_30%,#fbf9f4_100%)] pb-[calc(0rem+env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)]">
       <Foliage />
 
       {/* clip path for the arch-shaped hero image */}
@@ -636,7 +645,7 @@ export function TimingsTab() {
           <div key={`body-${fadeKey}`} style={fadeStyle}>
             {/* ------------------------ SUNRISE TO SUNSET ------------------------ */}
             {dayline && (
-              <section aria-label={`${dayline.startLabel} to ${dayline.endLabel}`} className="mx-5 -mt-35">
+              <section aria-label={`${dayline.startLabel} to ${dayline.endLabel}`} className="mx-5 -mt-42">
                 <div className="relative h-[60px]">
                   <span className="absolute left-3 top-[16px] text-[#f09a2e]"><PrayerIcon name="fajr" size={30} /></span>
                   <span className="absolute right-3 top-[16px] text-[#e0523a]"><PrayerIcon name="maghrib" size={30} /></span>
@@ -659,7 +668,7 @@ export function TimingsTab() {
             {/* ------------------------- SELECTED DETAILS ------------------------ */}
             <section
               aria-label={`${selected.name} details`}
-              className="mx-4 mt-0 rounded-[26px] bg-[#fffdf8]/95 p-4 ring-1 ring-[#e9e2cf] shadow-[0_10px_28px_-16px_rgba(28,52,42,0.35)]"
+              className="mx-4 mt-10 rounded-[26px] bg-[#fffdf8]/95 p-4 ring-1 ring-[#e9e2cf] shadow-[0_10px_28px_-16px_rgba(28,52,42,0.35)]"
             >
               <div className="flex items-center gap-4">
                 <span className="grid h-16 w-16 shrink-0 place-items-center rounded-full" style={{ backgroundColor: selectedTheme.box, color: selectedTheme.ring }}>
@@ -731,8 +740,7 @@ export function TimingsTab() {
                             className="flex min-w-0 flex-1 items-center gap-2.5 py-5 pl-3 text-left active:bg-forest/[0.03] min-[380px]:gap-3"
                           >
                             <span
-                              className="relative grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl min-[380px]:h-16 min-[380px]:w-16"
-                              style={{ backgroundColor: theme.box, color: theme.ring }}
+                              className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-2xl min-[1px]:h-20 min-[390px]:w-20"style={{ backgroundColor: theme.box, color: theme.ring }}
                             >
                               {imgBroken ? (
                                 <PrayerIcon name={p.key} size={24} />

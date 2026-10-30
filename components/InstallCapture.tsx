@@ -3,6 +3,19 @@ import { useEffect } from "react";
 
 export function InstallCapture() {
   useEffect(() => {
+  if (typeof window === "undefined") return;
+  if (!("serviceWorker" in navigator)) return;
+  // Skip on localhost dev — SW caches stale builds and breaks debugging
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") return;
+
+  navigator.serviceWorker
+    .register("/sw.js", { scope: "/" })
+    .then((reg) => {
+      console.log("SW registered:", reg.scope);
+    })
+    .catch((err) => console.warn("SW registration failed:", err));
+}, []);
+  useEffect(() => {
     const w = window as any;
     if (typeof w.__pwaInstallPrompt === "undefined") {
       w.__pwaInstallPrompt = null;
