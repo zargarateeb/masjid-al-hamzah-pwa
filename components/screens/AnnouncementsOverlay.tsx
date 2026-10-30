@@ -1,6 +1,7 @@
 "use client";
 import { AnnouncementsSkeleton } from "@/components/skeletons/AnnouncementsSkeleton";
 import { useEffect, useState } from "react";
+import { useAppStore } from "@/lib/store";
 import Overlay, {
   GlassCard,
   Star8,
@@ -19,6 +20,8 @@ interface Ann {
 }
 
 export default function AnnouncementsOverlay() {
+  const pendingAnnouncementId = useAppStore((s) => s.pendingAnnouncementId);
+  const setPendingAnnouncementId = useAppStore((s) => s.setPendingAnnouncementId);
   const [items, setItems] = useState<Ann[]>([]);
   const [loading, setLoading] = useState(true);
   const [openId, setOpenId] = useState<string | null>(null);
@@ -31,7 +34,12 @@ export default function AnnouncementsOverlay() {
       setItems(d.items || []);
     } catch {}
   }
-
+  useEffect(() => {
+  if (pendingAnnouncementId && items.length > 0) {
+    setOpenId(pendingAnnouncementId);
+    setPendingAnnouncementId(null);
+  }
+}, [pendingAnnouncementId, items, setPendingAnnouncementId]);
   useEffect(() => {
     if (typeof window !== "undefined") {
       setIsAdmin(!!sessionStorage.getItem("admin_pin"));
@@ -185,6 +193,7 @@ export default function AnnouncementsOverlay() {
 
       {open && (
         <CommentDialog
+          announcementId={open._id}
           title={open.title}
           subtitle={new Date(open.createdAt).toLocaleDateString(undefined, {
             weekday: "long",

@@ -2,6 +2,7 @@
 import { useAppStore } from "@/lib/store";
 import { BottomNav } from "./BottomNav";
 import { OfflineBanner } from "@/components/ui/OfflineBanner";
+import { useEffect } from "react";
 import { LeafBackground } from "./LeafBackground";
 import { StickyTopBar } from "./StickyTopBar";
 import PrayerTimeEditorOverlay from "@/components/screens/PrayerTimeEditorOverlay";
@@ -27,7 +28,22 @@ import { SuperAdminOverlay } from "@/components/screens/SuperAdminOverlay";
 export function AppShell() {
   const activeTab = useAppStore((s) => s.activeTab);
   const overlayStack = useAppStore((s) => s.overlayStack);
+  const setPendingAnnouncementId = useAppStore((s) => s.setPendingAnnouncementId);
+const pushScreen = useAppStore((s) => s.pushScreen);
 
+useEffect(() => {
+  if (typeof window === "undefined") return;
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("announcement");
+  if (id) {
+    setPendingAnnouncementId(id);
+    pushScreen("announcements");
+    // Strip the query param so reload doesn't re-trigger
+    const cleanUrl = window.location.pathname;
+    window.history.replaceState({}, "", cleanUrl);
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
   return (
     <>
       <LeafBackground variant={activeTab === "home" ? "composite" : "plain"} />

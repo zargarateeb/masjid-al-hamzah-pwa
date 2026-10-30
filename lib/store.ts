@@ -23,34 +23,31 @@ interface AppState {
   activeTab: Tab;
   overlayStack: OverlayScreen[];
   lastSearchTarget: { type: string; id: string | number } | null;
+  pendingAnnouncementId: string | null;
   setTab: (t: Tab) => void;
   pushScreen: (s: OverlayScreen) => void;
   popScreen: () => void;
   clearStack: () => void;
   setSearchTarget: (t: { type: string; id: string | number } | null) => void;
+  setPendingAnnouncementId: (id: string | null) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
   activeTab: 'home',
   overlayStack: [],
   lastSearchTarget: null,
+  pendingAnnouncementId: null,
 
   setTab: (t) => {
     const current = get().activeTab;
     const stack = get().overlayStack;
-
-    // Clear overlays when switching base tabs
     if (stack.length > 0) {
       set({ activeTab: t, overlayStack: [] });
       return;
     }
-
-    // Push a history entry when navigating to a non-home tab
-    // So back button can bring us back to home
     if (t !== 'home' && current !== t && typeof window !== 'undefined') {
       window.history.pushState({ tab: t }, '');
     }
-
     set({ activeTab: t });
   },
 
@@ -64,7 +61,6 @@ export const useAppStore = create<AppState>((set, get) => ({
   popScreen: () => {
     const stack = get().overlayStack;
     if (stack.length === 0) return;
-
     if (typeof window !== 'undefined' && window.history.state?.overlay) {
       window.history.back();
     } else {
@@ -75,4 +71,6 @@ export const useAppStore = create<AppState>((set, get) => ({
   clearStack: () => set({ overlayStack: [] }),
 
   setSearchTarget: (t) => set({ lastSearchTarget: t }),
+
+  setPendingAnnouncementId: (id) => set({ pendingAnnouncementId: id }),
 }));

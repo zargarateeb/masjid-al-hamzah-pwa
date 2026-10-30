@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { Star8, PrimaryButton } from "./Theme";
+import { ShareSheet } from "./ShareSheet";
 
 export interface Comment {
   _id?: string;
@@ -39,6 +40,7 @@ export default function CommentDialog({
   onSubmit,
   onDelete,
   onClose,
+  announcementId,
 }: {
   title: string;
   subtitle: string;
@@ -53,11 +55,13 @@ export default function CommentDialog({
     message: string;
   }) => Promise<boolean>;
   onDelete?: (commentId: string) => Promise<boolean>;
+  announcementId?: string;
   onClose: () => void;
 }) {
   const { data: session } = useSession();
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showShare, setShowShare] = useState(false);
 
   async function submit() {
     if (!text.trim() || !session?.user) return;
@@ -91,6 +95,20 @@ export default function CommentDialog({
             </h2>
             <p className="mt-0.5 text-[11px] text-ink-muted">{subtitle}</p>
           </div>
+          {announcementId && (
+            <button
+              type="button"
+              onClick={() => setShowShare(true)}
+              aria-label="Share"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-forest text-white shadow-sm transition active:scale-95"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                <polyline points="16 6 12 2 8 6" />
+                <line x1="12" y1="2" x2="12" y2="15" />
+              </svg>
+            </button>
+          )}
           <button
             type="button"
             onClick={onClose}
@@ -204,7 +222,14 @@ export default function CommentDialog({
             </p>
           )}
         </div>
+        {showShare && announcementId && (
+          <ShareSheet
+            announcement={{ _id: announcementId, title, content }}
+            onClose={() => setShowShare(false)}
+          />
+        )}
       </div>
     </div>
+    
   );
 }
