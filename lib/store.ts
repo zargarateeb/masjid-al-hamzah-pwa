@@ -17,7 +17,8 @@ export type OverlayScreen =
   | 'our-masjid'
   | 'super-admin'
   | 'edit-times'
-  | 'search';
+  | 'search'
+  | 'islamic-calendar';
 
 interface AppState {
   activeTab: Tab;

@@ -44,6 +44,8 @@ export const TILE_IMAGES: Record<string, string> = {
   debate: `${IK}/debate.jpg`,
   donate: `${IK}/Donate.jpg`,
   settings: `${IK}/Settings.jpg`,
+  profile: `${IK}/profiles.png`,
+  'islamic-calendar': `${IK}/calendrr.png`,
 };
 
 // ─── Duas — category thumbnails (ImageKit · rgbcpayfx) ─

@@ -24,6 +24,7 @@ import AdminPinOverlay from "@/components/screens/AdminPinOverlay";
 import { AdminOverlay } from "@/components/screens/AdminOverlay";
 import { SearchOverlay } from "@/components/screens/SearchOverlay";
 import { SuperAdminOverlay } from "@/components/screens/SuperAdminOverlay";
+import { IslamicCalendarOverlay } from "@/components/screens/IslamicCalendarOverlay";
 
 export function AppShell() {
   const activeTab = useAppStore((s) => s.activeTab);
@@ -75,6 +76,7 @@ useEffect(() => {
                 {s === "settings" && <SettingsOverlay />}
                 {s === "qibla" && <QiblaOverlay />}
                 {s === "admin-pin" && <AdminPinOverlay />}
+                {s === "islamic-calendar" && <IslamicCalendarOverlay />}
                 {s === "admin" && <AdminOverlay />}
                 {s === "super-admin" && <SuperAdminOverlay />}
                 {s === "edit-times" && <PrayerTimeEditorOverlay />}
